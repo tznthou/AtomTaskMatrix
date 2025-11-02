@@ -50,10 +50,10 @@ flowchart TB
 ```
 
 **架構說明:**
-- **前端層**: 單一 HTML 檔案 + Vanilla JavaScript,使用 Tailwind 4.0 CDN 處理樣式
+- **前端層**: 模組化 JavaScript 架構（12 個模組，5 層架構），使用 Tailwind 4.0 CDN 處理樣式
 - **狀態管理**: 即時操作直接同步到 Google Sheets,不使用 localStorage 避免資料不一致
 - **資料層**: Google Sheets 作為雲端資料庫,分為 Tasks(任務資料) 和 Analytics(統計資料) 兩個分頁
-- **AI 層**: Gemini API 負責任務拆解,按需觸發不佔用不必要額度
+- **AI 層**: Gemini API (`gemini-2.0-flash`) 負責任務拆解,按需觸發不佔用不必要額度
 
 ---
 
@@ -65,8 +65,8 @@ flowchart TB
 | 樣式系統 | Tailwind CSS | 4.0 via CDN |
 | 拖曳功能 | HTML5 Drag & Drop API | 原生支援,無需第三方套件 |
 | 雲端儲存 | Google Sheets API | v4 - RESTful API |
-| AI 分析 | Google Gemini API | gemini-pro 模型 |
-| 部署方式 | 靜態網頁託管 | GitHub Pages / Netlify / Vercel |
+| AI 分析 | Google Gemini API | gemini-2.0-flash 模型 |
+| 部署方式 | 靜態網頁託管 | Zeabur / Netlify / Vercel |
 | 開發工具 | Live Server | VS Code 擴充套件即可 |
 
 ---
@@ -75,21 +75,40 @@ flowchart TB
 
 ```bash
 atomic-task-matrix/
-├─ index.html              # 主應用程式(單一檔案包含所有邏輯)
-├─ config.example.js       # API 金鑰範例檔案
-├─ config.js               # API 金鑰設定檔(需自行建立,已加入 .gitignore)
-├─ docs/                   # 專案文件
-│  ├─ README.md            # 本檔案
-│  ├─ PRD.md               # 產品需求文件
-│  └─ SPEC.md              # 系統規格文件
-├─ .gitignore              # 排除 config.js 避免洩漏金鑰
-└─ README.md               # GitHub 專案說明(連結到 docs/)
+├─ index.html              # 主 HTML 檔案
+├─ config.js               # API 設定檔(需自行建立,已加入 .gitignore)
+├─ tailwind-config.js      # Tailwind CSS 配置（Memphis 設計系統）
+├─ core/                   # Layer 1-2: 基礎與配置
+│  ├─ constants.js         # 狀態標籤與顏色定義
+│  ├─ icons.js             # Heroicons SVG 圖標庫
+│  ├─ config.js            # API 配置管理
+│  └─ state.js             # 全域狀態與 DOM 引用
+├─ models/                 # Layer 1: 資料模型
+│  └─ Task.js              # 任務資料模型類別
+├─ services/               # Layer 3: 服務層
+│  └─ BackendGateway.js    # Google Apps Script API 通訊
+├─ handlers/               # Layer 4: 互動處理
+│  └─ DragDropHandler.js   # 拖放功能處理
+├─ managers/               # Layer 4: 業務邏輯
+│  └─ TaskManager.js       # 任務管理核心邏輯
+├─ monitors/               # Layer 4: 監控
+│  └─ ConnectionMonitor.js # 連線狀態監控
+├─ ui/                     # Layer 4: UI 元件
+│  ├─ Renderer.js          # UI 渲染與更新
+│  ├─ ConfirmDialog.js     # 確認對話框元件
+│  └─ FeedbackToast.js     # Toast 通知元件
+├─ app/                    # Layer 5: 應用啟動
+│  ├─ events.js            # 事件綁定
+│  └─ bootstrap.js         # 應用初始化
+└─ gas/                    # Google Apps Script 後端
+   └─ backend.gs           # GAS Web App 後端程式碼
 ```
 
 **架構設計原則:**
-- **單一檔案原則**: 所有 HTML/CSS/JS 整合在 `index.html`,降低部署複雜度
-- **配置分離**: API 金鑰獨立於 `config.js`,避免版本控制洩漏
-- **文件集中**: 所有規劃文件放在 `docs/` 目錄便於管理
+- **模組化架構**: 12 個模組分為 5 層,單向依賴流,無循環依賴
+- **配置分離**: API 設定獨立於 `config.js`,避免版本控制洩漏
+- **無建構流程**: 直接載入 script,不需要打包工具
+- **清晰職責**: 每個模組有明確的單一職責
 
 ---
 
@@ -125,21 +144,24 @@ cp config.example.js config.js
 
 ### 後端 Web App (Google Apps Script)
 
-- 程式碼位置: `gas/backend.gs`
-- 試算表 ID: `YOUR_SPREADSHEET_ID`
-- 已部署 Web App URL:  
+- **程式碼位置**: `gas/backend.gs`
+- **試算表 ID**: `YOUR_SPREADSHEET_ID`
+- **已部署 Web App URL**:
   `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
-- 若需啟用 Gemini 拆解: 於 Apps Script「專案屬性 → 指令碼屬性」新增 `GEMINI_API_KEY`
-- 部署設定: 執行身份「我自己」、存取權「任何人(含匿名)」
+- **Gemini AI 啟用**: 於 Apps Script「專案設定 → 指令碼屬性」新增 `GEMINI_API_KEY`
+- **部署設定**: 執行身份「我自己」、存取權「任何人(含匿名)」
+- **模型版本**: `gemini-2.0-flash` (穩定推薦版本)
+- **⚠️ 重要**: 每次重新部署都會產生新的 URL,記得同步更新 `config.js`
 
 ### config.js 範例
 
 ```javascript
 window.CONFIG = {
-  API_BASE_URL: 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec',
-  API_TOKEN: '' // 若後端啟用自訂驗證再填入
+  API_BASE_URL: 'https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec'
 };
 ```
+
+**安全說明**: API_TOKEN 已從客戶端移除,後端使用 CSRF Token 機制提供防護。
 
 ---
 
@@ -168,41 +190,91 @@ window.CONFIG = {
 
 ## 🔐 安全性考量
 
+### 資安修復狀態 (最後更新: 2025-11-03)
+
+| 編號 | 嚴重程度 | 問題描述 | 狀態 | 修復日期 |
+|------|----------|----------|------|----------|
+| H-01 | HIGH | DOM-based XSS 漏洞 | ✅ 已修復 | 2025-11-02 |
+| M-01 | MEDIUM | 客戶端 API Token 暴露 | ✅ 已修復 | 2025-11-03 |
+| M-02 | MEDIUM | Tailwind CDN 無 SRI 保護 | ⏳ 待處理 | - |
+| L-01 | LOW | ALLOWED_ORIGIN 配置清理 | ✅ 已修復 | 2025-11-03 |
+
+### 已實施的安全措施
+
+**XSS 防護 (H-01)**:
+- ✅ 所有使用者輸入使用 `createElement()` + `textContent` 安全渲染
+- ✅ 僅內部受控函式（如 IconLibrary）使用 `innerHTML`
+- ✅ 已實施 Content Security Policy (CSP)
+
+**CSRF 防護 (M-01)**:
+- ✅ 移除客戶端 API_TOKEN（無實際防護效果）
+- ✅ 後端使用 Server-generated CSRF Token 機制
+- ✅ 所有 POST/PUT/DELETE 請求包含 CSRF Token
+- ✅ Token 單次使用,防止重放攻擊
+
+**CORS 配置 (L-01)**:
+- ✅ 移除誤導性 ALLOWED_ORIGIN 配置
+- ✅ GAS Web App 預設允許所有來源（無法自訂）
+- ✅ 透過 CSRF Token 機制提供跨站請求防護
+
+**待處理項目 (M-02)**:
+- ⏳ Tailwind CSS 自託管（工時: 4-6 小時）
+- ⏳ 實施 Subresource Integrity (SRI) 保護
+
 ### API 金鑰保護
 
 - ❌ **不要將 config.js 加入版本控制**
 - ✅ 使用 `.gitignore` 排除 `config.js`
-- ✅ 提供 `config.example.js` 作為範本
-- ⚠️ 如需公開部署,建議使用後端 Proxy 保護金鑰
+- ✅ GAS Web App URL 本身不構成安全風險（公開存取設計）
+- ⚠️ Gemini API Key 僅存於 GAS Script Properties,不暴露於前端
 
 ### Google Sheets 權限設定
 
 - 試算表設定為「知道連結的人可以編輯」
-- API 金鑰限制僅能存取特定試算表 ID
-- 定期更換 API 金鑰
+- GAS 以部署者身份執行,控制資料存取權限
+- 透過 CSRF Token 防止未授權的跨站請求
 
 ---
 
 ## 📦 部署
 
+### 生產環境 (Current)
+
+**平台**: Zeabur
+**網址**: https://task-matrix.zeabur.app/
+**前端**: 靜態檔案直接部署
+**後端**: Google Apps Script Web App
+**最後更新**: 2025-11-03
+
 ### 靜態網頁託管 (推薦)
+
+**Zeabur / Netlify / Vercel:**
+- 直接連接 GitHub Repository
+- 部署時手動建立 `config.js` 並填入 GAS Web App URL
+- 自動化部署
+- ⚠️ **注意**: 不要推送 `config.js` 到 Git
 
 **GitHub Pages:**
 ```bash
 # 推送到 GitHub 後在設定中啟用 Pages
-# ⚠️ 注意: 不要推送 config.js,部署時需手動設定環境變數
+# ⚠️ 注意: 不要推送 config.js,部署時需手動設定
 ```
 
-**Netlify / Vercel:**
-- 直接連接 GitHub Repository
-- 在環境變數中設定 API 金鑰
-- 自動化部署
+### 本地開發
 
-### 本地部署
+**必須使用 VS Code Live Server 擴充套件**:
+```bash
+# 1. 安裝 VS Code Live Server 擴充
+# 2. 右鍵 index.html → "Open with Live Server"
+# 3. 瀏覽器自動開啟 http://127.0.0.1:5500/
+```
 
-直接用瀏覽器開啟 `index.html` 即可,但需確保:
-- `config.js` 已正確設定
-- 瀏覽器允許跨域請求 (Google API CORS 已設定)
+**⚠️ 不要使用其他伺服器工具** (如 `python -m http.server` 或 `npm serve`),可能導致模組載入問題。
+
+**環境檢查清單**:
+- ✅ `config.js` 已正確設定
+- ✅ 使用 VS Code Live Server
+- ✅ 瀏覽器允許跨域請求 (GAS API CORS 已設定)
 
 ---
 
