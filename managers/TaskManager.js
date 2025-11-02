@@ -182,16 +182,6 @@ window.TaskManager = {
         }
     },
 
-    selectTask(taskId) {
-        if (!taskId || AppState.selectedTaskId === taskId) {
-            AppState.selectedTaskId = null;
-        } else {
-            AppState.selectedTaskId = taskId;
-        }
-        Renderer.renderBoard();
-        Renderer.renderFocusPanel();
-    },
-
     async refreshStats() {
         if (!Config.hasApi()) return;
         try {
@@ -215,42 +205,15 @@ window.TaskManager = {
         if (!task) return;
 
         Renderer.showFeedback("AI 拆解中...", "info");
-        if (Elements.focusAi) {
-            Elements.focusAi.classList.add("opacity-60", "pointer-events-none");
-        }
 
         try {
-            const originalTaskId = task.id;
-            await BackendGateway.breakdownTask(originalTaskId);
+            await BackendGateway.breakdownTask(task.id);
             await this.reloadTasks();
-
-            // ✅ 拆解完成後自動選中第一個子任務
-            const firstSubtask = AppState.tasks.find(
-                t => t.parent_task_id === originalTaskId && t.status !== 'completed'
-            );
-
-            if (firstSubtask) {
-                // 自動選中第一個子任務，讓用戶看到結果
-                AppState.selectedTaskId = firstSubtask.id;
-                Renderer.renderBoard();
-                Renderer.renderFocusPanel();
-                Renderer.showFeedback("AI 拆解完成，已自動選中第一個子任務", "success");
-            } else {
-                // 若無子任務（拆解失敗或全部已完成），清除選中狀態
-                AppState.selectedTaskId = null;
-                Renderer.renderBoard();
-                Renderer.renderFocusPanel();
-                Renderer.showFeedback("AI 拆解完成", "success");
-            }
-
+            Renderer.showFeedback("AI 拆解完成", "success");
             this.refreshStats();
         } catch (error) {
             console.error("AI 拆解失敗:", error);
             Renderer.showFeedback("AI 分析暫時無法使用,請稍後再試", "error");
-        } finally {
-            if (Elements.focusAi) {
-                Elements.focusAi.classList.remove("opacity-60", "pointer-events-none");
-            }
         }
     }
 };

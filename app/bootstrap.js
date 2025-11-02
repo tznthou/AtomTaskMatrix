@@ -34,21 +34,7 @@ function initializeElements() {
     Elements.statTotalCompleted = document.getElementById("stat-total-completed");
     Elements.statAvgLifetime = document.getElementById("stat-avg-lifetime");
     Elements.statAdoption = document.getElementById("stat-adoption");
-    Elements.focusPanel = document.getElementById("focus-panel");
-    Elements.focusEmpty = document.getElementById("focus-empty");
-    Elements.focusDetail = document.getElementById("focus-detail");
-    Elements.focusTitle = document.getElementById("focus-title");
-    Elements.focusMeta = document.getElementById("focus-meta");
-    Elements.focusStatus = document.getElementById("focus-status");
-    Elements.focusParent = document.getElementById("focus-parent");
-    Elements.focusCancel = document.getElementById("focus-cancel");
-    Elements.focusAi = document.getElementById("focus-ai");
-    Elements.focusComplete = document.getElementById("focus-complete");
-    Elements.focusSubtasks = document.getElementById("focus-subtasks");
-    Elements.focusCreated = document.getElementById("focus-created");
-    Elements.focusUpdated = document.getElementById("focus-updated");
     Elements.template = document.getElementById("task-card-template");
-    Elements.subtaskTemplate = document.getElementById("focus-subtask-template");
 }
 
 /**

@@ -14,7 +14,6 @@
  */
 window.AppState = {
     tasks: [],
-    selectedTaskId: null,
     connectionStatus: "disconnected",
     lastSyncTime: null,
     weeklyStats: null,

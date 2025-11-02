@@ -12,7 +12,6 @@
 window.Renderer = {
     renderAll() {
         this.renderBoard();
-        this.renderFocusPanel();
         this.renderStats();
     },
 
@@ -61,7 +60,9 @@ window.Renderer = {
         const subEl = node.querySelector("p.text-xs");
         const statusLabelEl = node.querySelector(".status-label");
         const createdEl = node.querySelector(".created-at");
-        const focusButton = node.querySelector('[data-action="focus"]');
+        const updatedEl = node.querySelector(".updated-at");
+        const completedWrapper = node.querySelector(".completed-at-wrapper");
+        const completedEl = node.querySelector(".completed-at");
         const breakdownButton = node.querySelector('[data-action="breakdown"]');
         const completeButton = node.querySelector('[data-action="complete"]');
         const deleteButton = node.querySelector('[data-action="delete"]');
@@ -74,10 +75,14 @@ window.Renderer = {
             subEl.textContent = "獨立任務";
         }
         statusLabelEl.textContent = STATUS_LABELS[task.status] ?? task.status;
-        createdEl.textContent = this.formatRelativeTime(task.created_at);
+        createdEl.textContent = `建立於 ${this.formatRelativeTime(task.created_at)}`;
+        updatedEl.textContent = `更新於 ${this.formatRelativeTime(task.updated_at)}`;
 
-        if (AppState.selectedTaskId === task.id) {
-            node.classList.add("ring-2", "ring-brand-primary/60");
+        if (task.completed_at) {
+            completedEl.textContent = `完成於 ${this.formatRelativeTime(task.completed_at)}`;
+            completedWrapper.classList.remove("hidden");
+        } else {
+            completedWrapper.classList.add("hidden");
         }
 
         if (task.status === "completed") {
@@ -92,11 +97,6 @@ window.Renderer = {
             breakdownButton.disabled = false;
             breakdownButton.classList.remove("opacity-50", "cursor-not-allowed");
         }
-
-        focusButton.addEventListener("click", event => {
-            event.preventDefault();
-            TaskManager.selectTask(task.id);
-        });
 
         breakdownButton.addEventListener("click", event => {
             event.preventDefault();
@@ -118,93 +118,6 @@ window.Renderer = {
         node.addEventListener("dragend", DragDropHandler.onDragEnd);
 
         return node;
-    },
-
-    renderFocusPanel() {
-        const task = AppState.tasks.find(item => item.id === AppState.selectedTaskId);
-
-        if (!task) {
-            Elements.focusDetail?.classList.add("hidden");
-            Elements.focusEmpty?.classList.remove("hidden");
-            return;
-        }
-
-        Elements.focusEmpty?.classList.add("hidden");
-        Elements.focusDetail?.classList.remove("hidden");
-
-        Elements.focusTitle.textContent = task.title;
-        // ✅ Heroicons: link 圖標表示子任務來源
-        if (task.parent_task_title) {
-            Elements.focusMeta.innerHTML = `<span class="inline-flex items-center gap-1">${IconLibrary.link('w-3 h-3')}來自 ${task.parent_task_title}</span>`;
-        } else {
-            Elements.focusMeta.textContent = "獨立任務";
-        }
-
-        this.applyStatusAccent(Elements.focusStatus, task.status);
-        Elements.focusStatus.textContent = STATUS_LABELS[task.status] ?? task.status;
-
-        if (task.parent_task_title) {
-            Elements.focusParent.textContent = `母任務: ${task.parent_task_title}`;
-            Elements.focusParent.classList.remove("hidden");
-        } else {
-            Elements.focusParent.classList.add("hidden");
-        }
-
-        if (Elements.focusAi) {
-            Elements.focusAi.dataset.taskId = task.id;
-            const disabled = task.status === "completed";
-            Elements.focusAi.disabled = disabled;
-            Elements.focusAi.classList.toggle("opacity-60", disabled);
-            Elements.focusAi.classList.toggle("pointer-events-none", disabled);
-        }
-
-        if (Elements.focusComplete) {
-            Elements.focusComplete.dataset.taskId = task.id;
-            const disabled = task.status === "completed";
-            Elements.focusComplete.disabled = disabled;
-            Elements.focusComplete.classList.toggle("opacity-60", disabled);
-            Elements.focusComplete.classList.toggle("pointer-events-none", disabled);
-        }
-
-        Elements.focusCreated.textContent = `建立於 ${this.formatDateTime(task.created_at)}`;
-        Elements.focusUpdated.textContent = `最後更新 ${this.formatDateTime(task.updated_at)}`;
-
-        this.renderFocusSubtasks(task);
-    },
-
-    renderFocusSubtasks(parentTask) {
-        if (!Elements.focusSubtasks) return;
-        Elements.focusSubtasks.innerHTML = "";
-
-        const subtasks = AppState.tasks.filter(task => task.parent_task_id === parentTask.id);
-        if (subtasks.length === 0) {
-            const placeholder = document.createElement("li");
-            placeholder.className = "text-xs text-base-subtle";
-            placeholder.textContent = "尚未有子任務。使用 AI 拆解或自行建立。";
-            Elements.focusSubtasks.appendChild(placeholder);
-            return;
-        }
-
-        subtasks.forEach(subtask => {
-            const node = Elements.subtaskTemplate.content.firstElementChild.cloneNode(true);
-            node.dataset.subtaskId = subtask.id;
-            node.querySelector("span.font-medium").textContent = subtask.title;
-            node.querySelector("span.text-[11px]").textContent = STATUS_LABELS[subtask.status] ?? subtask.status;
-
-            const completeButton = node.querySelector('[data-action="complete-subtask"]');
-            if (subtask.status === "completed") {
-                completeButton.classList.add("hidden");
-                node.classList.add("opacity-60");
-            } else {
-                completeButton.addEventListener("click", event => {
-                    event.preventDefault();
-                    TaskManager.completeTask(subtask.id);
-                });
-            }
-
-            node.addEventListener("click", () => TaskManager.selectTask(subtask.id));
-            Elements.focusSubtasks.appendChild(node);
-        });
     },
 
     renderStats() {
