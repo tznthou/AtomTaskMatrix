@@ -1,0 +1,16 @@
+<svg viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+    <!-- Atomic Task Matrix Logo - Memphis Design -->
+    <!-- Four Quadrants representing Eisenhower Matrix -->
+
+    <!-- Q1: Red (Urgent & Important) -->
+    <rect x="3" y="3" width="15" height="15" fill="#FF6B6B" stroke="#2D2D2D" stroke-width="2.5"/>
+
+    <!-- Q2: Green (Not Urgent & Important) -->
+    <rect x="22" y="3" width="15" height="15" fill="#26DE81" stroke="#2D2D2D" stroke-width="2.5"/>
+
+    <!-- Q3: Orange (Urgent & Not Important) -->
+    <rect x="3" y="22" width="15" height="15" fill="#FFA502" stroke="#2D2D2D" stroke-width="2.5"/>
+
+    <!-- Q4: Blue (Not Urgent & Not Important) -->
+    <rect x="22" y="22" width="15" height="15" fill="#00D2FC" stroke="#2D2D2D" stroke-width="2.5"/>
+</svg>

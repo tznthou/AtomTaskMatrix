@@ -9,13 +9,14 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 ## ⚠️ Current Project Status (2025-11-02)
 
 ### Completed Features ✅
-- **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (1056 lines total)
-- **UI**: **Memphis Design** (粗邊框 + 彩色偏移陰影 + 旋轉元素), drag-and-drop, statistics panel, Heroicons SVG icons
+- **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (~1020 lines total after UI cleanup)
+- **UI Design**: **Memphis Design** (粗邊框 + 彩色偏移陰影 + 旋轉元素), drag-and-drop, HeroIcons SVG icons
+- **Layout**: Optimized information hierarchy (quadrants-first), modal-based statistics, 2-column grid for uncategorized tasks
 - **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
 - **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
 - **Sync**: Real-time sync without localStorage
 - **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model
-- **UX**: Direct AI breakdown button on task cards, time information display on cards
+- **UX**: Direct AI breakdown button on task cards, time information display, on-demand statistics modal
 - **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
 - **All Core Functionality**: ✅ 建立任務、拖放分類、AI 分析、刪除任務、完成任務
 
@@ -137,6 +138,101 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
      - [core/state.js](core/state.js): Removed `selectedTaskId` state
      - [index.html](index.html): Removed Focus Panel HTML and templates
    - Status: ✅ Deployed to production, tested and working
+
+8. **UI/UX Refinement & Layout Optimization (RESOLVED 2025-11-02)**
+   - **Motivation**: Eliminate non-functional UI elements and optimize information hierarchy
+   - **Changes Implemented**:
+     1. **Removed Non-Functional UI Elements**
+        - Deleted search box (⌘K) with no backend functionality
+        - Deleted theme toggle button (亮/暗) with no implementation
+        - Deleted settings button with no settings panel
+        - Impact: Cleaner header, reduced user confusion
+        - Files: [index.html](index.html#L100-L121)
+
+     2. **Header Layout Rebalance**
+        - Moved connection status indicator from left to right
+        - Layout: Logo + Title (left) ↔ Stats Button + Connection Status (right)
+        - Responsive: Vertical stack on mobile, horizontal on desktop
+        - Impact: Better visual balance and symmetry
+        - Files: [index.html](index.html#L91-L121)
+
+     3. **Statistics Panel Modalization**
+        - Converted right-side statistics panel to modal popup
+        - Added HeroIcons chart-bar button in header
+        - Modal features: Click outside/ESC/X button to close, auto-refresh on open
+        - Layout change: 7fr:5fr (58%:42%) → 100% full width for quadrants
+        - Impact: 42% more space for task quadrants
+        - Files:
+          - Modal HTML: [index.html](index.html#L343-L394)
+          - Icon: [core/icons.js](core/icons.js#L94-L102)
+          - Events: [app/events.js](app/events.js#L21-L61)
+          - Rendering: [ui/Renderer.js](ui/Renderer.js#L149-L183)
+
+     4. **Uncategorized Zone Grid Layout**
+        - Changed from vertical stack (space-y-3) to 2-column grid
+        - Responsive: 1 column (mobile) → 2 columns (desktop)
+        - Matches quadrant layout (lg:grid-cols-2)
+        - Impact: Cleaner display when multiple uncategorized tasks exist
+        - Files: [index.html](index.html#L242)
+
+     5. **Content Hierarchy Reordering**
+        - Swapped position: Quadrants (top) ↔ Uncategorized (bottom)
+        - Rationale: Core work area (quadrants) deserves primary focus
+        - User flow: "View categorized tasks first, then process uncategorized"
+        - Impact: Better information architecture
+        - Files: [index.html](index.html#L160-L247)
+
+   - **Code Metrics**:
+     - Lines removed: ~50 lines (non-functional UI elements)
+     - Lines added: ~60 lines (modal implementation)
+     - Net change: +10 lines for significantly improved UX
+
+   - **Visual Improvements**:
+     - ✅ Cleaner header with purpose-driven elements only
+     - ✅ 100% width for quadrants (was 58%)
+     - ✅ Modal-based statistics (on-demand viewing)
+     - ✅ Grid-based uncategorized zone (scalable layout)
+     - ✅ Logical content hierarchy (important → secondary)
+
+   - Status: ✅ Completed, ready for production deployment
+
+9. **Memphis Design Cleanup & Overscroll Fix (RESOLVED 2025-11-02)**
+   - **Motivation**: Simplify design by removing all shadow effects, fix background cutoff during overscroll
+
+   - **Phase 1: Shadow Removal**
+     - Removed all Memphis shadow effects (shadow-memphis-*) for flatter design
+     - User feedback: "效果不錯，我決定把所有有陰影的效果全部拿掉"
+     - Files affected:
+       - [index.html](index.html) - Removed shadow-memphis-card, shadow-memphis-task, shadow-memphis-btn
+       - [ui/ConfirmDialog.js](ui/ConfirmDialog.js) - Removed shadows from dialog and buttons
+       - [ui/FeedbackToast.js](ui/FeedbackToast.js) - Removed shadow from toast
+     - Impact: Cleaner, more minimal Memphis aesthetic
+
+   - **Phase 2: Header Border Cleanup**
+     - Removed unnecessary pink dashed top border from header
+     - Kept only bottom border (orange dashed line)
+     - Files: [index.html](index.html)
+
+   - **Phase 3: Overscroll/Elastic Scrolling Fix**
+     - **Problem**: White space visible at top when scrolling on desktop/mobile
+     - **Root Cause**: `background-attachment: fixed` kept background fixed to viewport while content could be overscrolled, exposing white space beyond gradient
+     - **Solution**:
+       1. Removed `background-attachment: fixed` from body
+       2. Added `overscroll-behavior: none` to html element (disables elastic scrolling)
+       3. Added `background-size: 100% 100%` to body (ensures gradient covers entire area)
+     - **Technical Details**:
+       - Overscroll (elastic scrolling) is default browser behavior on iOS Safari, Chrome
+       - When background is fixed to viewport, overscrolling content reveals the layer beneath
+       - `overscroll-behavior: none` prevents pull-to-refresh and bounce effects
+     - Files: [index.html](index.html#L40-L51)
+     - Impact: Smooth scrolling with no background cutoff on any device
+
+   - **Design Philosophy Learned**:
+     - Not all projects need `overscroll-behavior: none`
+     - Only required when: fixed backgrounds, full-screen apps, or scroll-locked modals
+     - Regular websites with solid background-color don't face this issue
+
+   - Status: ✅ All visual issues resolved, ready for production deployment
 
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)

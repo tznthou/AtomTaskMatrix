@@ -150,29 +150,35 @@ window.Renderer = {
         const stats = AppState.weeklyStats;
         this.updateProgressRing(stats?.completion_rate ?? null);
 
-        Elements.statTotalCompleted.textContent = stats?.total_completed ?? "--";
-        Elements.statAvgLifetime.textContent = stats?.avg_lifetime_days != null
-            ? `${Number(stats.avg_lifetime_days).toFixed(1)} 天`
-            : "-- 天";
-
-        Elements.statAdoption.textContent = stats?.adoption_rate != null
-            ? `${Number(stats.adoption_rate).toFixed(0)}%`
-            : "--%";
+        // Update Modal Statistics
+        if (Elements.statTotalCompletedModal) {
+            Elements.statTotalCompletedModal.textContent = stats?.total_completed ?? "--";
+        }
+        if (Elements.statAvgLifetimeModal) {
+            Elements.statAvgLifetimeModal.textContent = stats?.avg_lifetime_days != null
+                ? `${Number(stats.avg_lifetime_days).toFixed(1)} 天`
+                : "-- 天";
+        }
+        if (Elements.statAdoptionModal) {
+            Elements.statAdoptionModal.textContent = stats?.adoption_rate != null
+                ? `${Number(stats.adoption_rate).toFixed(0)}%`
+                : "--%";
+        }
     },
 
     updateProgressRing(value) {
-        if (!Elements.progressCircle || !Elements.progressValue) return;
-        const circle = Elements.progressCircle;
+        if (!Elements.progressCircleModal || !Elements.progressValueModal) return;
+        const circle = Elements.progressCircleModal;
         const circumference = 2 * Math.PI * 50;
 
         if (typeof value === "number" && !Number.isNaN(value)) {
             const normalized = Math.max(0, Math.min(100, value));
             const offset = circumference - (normalized / 100) * circumference;
             circle.style.strokeDashoffset = offset.toString();
-            Elements.progressValue.textContent = `${normalized.toFixed(0)}%`;
+            Elements.progressValueModal.textContent = `${normalized.toFixed(0)}%`;
         } else {
             circle.style.strokeDashoffset = circumference.toString();
-            Elements.progressValue.textContent = "--%";
+            Elements.progressValueModal.textContent = "--%";
         }
     },
 

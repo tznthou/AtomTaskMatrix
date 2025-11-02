@@ -18,7 +18,7 @@ window.FeedbackToast = {
      */
     show(message, type = "info", duration = 2500) {
         const toast = document.createElement("div");
-        toast.className = "fixed top-6 right-6 z-40 rounded-[20px] border-4 border-[#2D2D2D] px-6 py-4 shadow-memphis-card";
+        toast.className = "fixed top-6 right-6 z-40 rounded-[20px] border-4 border-[#2D2D2D] px-6 py-4";
 
         // 根據類型設置顏色
         let bgColor = "#FFFFFF";

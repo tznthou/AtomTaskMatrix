@@ -28,13 +28,18 @@ function initializeElements() {
         urgent_not_important: document.getElementById("badge-q3"),
         not_urgent_not_important: document.getElementById("badge-q4")
     };
-    Elements.refreshStats = document.getElementById("refresh-stats");
-    Elements.progressCircle = document.getElementById("progress-ring-circle");
-    Elements.progressValue = document.getElementById("progress-ring-value");
-    Elements.statTotalCompleted = document.getElementById("stat-total-completed");
-    Elements.statAvgLifetime = document.getElementById("stat-avg-lifetime");
-    Elements.statAdoption = document.getElementById("stat-adoption");
     Elements.template = document.getElementById("task-card-template");
+
+    // Statistics Modal Elements
+    Elements.statsButton = document.getElementById("stats-button");
+    Elements.statsModal = document.getElementById("stats-modal");
+    Elements.statsModalClose = document.getElementById("stats-modal-close");
+    Elements.refreshStatsModal = document.getElementById("refresh-stats-modal");
+    Elements.progressCircleModal = document.getElementById("progress-ring-circle-modal");
+    Elements.progressValueModal = document.getElementById("progress-ring-value-modal");
+    Elements.statTotalCompletedModal = document.getElementById("stat-total-completed-modal");
+    Elements.statAvgLifetimeModal = document.getElementById("stat-avg-lifetime-modal");
+    Elements.statAdoptionModal = document.getElementById("stat-adoption-modal");
 }
 
 /**

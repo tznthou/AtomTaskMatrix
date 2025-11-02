@@ -25,7 +25,7 @@ window.ConfirmDialog = {
             overlay.style.animation = "fadeIn 0.2s ease-out";
 
             const dialog = document.createElement("div");
-            dialog.className = "rounded-[25px] border-4 border-[#2D2D2D] bg-white p-6 shadow-memphis-card max-w-sm";
+            dialog.className = "rounded-[25px] border-4 border-[#2D2D2D] bg-white p-6 max-w-sm";
             dialog.style.animation = "slideUp 0.3s ease-out";
 
             // 图标和标题
@@ -54,7 +54,7 @@ window.ConfirmDialog = {
 
             // 取消按钮
             const cancelBtn = document.createElement("button");
-            cancelBtn.className = "px-4 py-2 rounded-xl border-3 border-[#2D2D2D] bg-[#757575] text-white font-bold transition shadow-memphis-btn hover:shadow-memphis-card";
+            cancelBtn.className = "px-4 py-2 rounded-xl border-3 border-[#2D2D2D] bg-[#757575] text-white font-bold transition";
             cancelBtn.textContent = "取消";
             cancelBtn.onclick = () => {
                 overlay.style.animation = "fadeOut 0.2s ease-out";
@@ -65,7 +65,7 @@ window.ConfirmDialog = {
             // 确认按钮（根据是否危险操作改变颜色）
             const confirmBtn = document.createElement("button");
             const confirmColor = isDangerous ? "#FF6B6B" : "#26DE81";
-            confirmBtn.className = "px-4 py-2 rounded-xl border-3 border-[#2D2D2D] text-white font-bold transition shadow-memphis-btn hover:shadow-memphis-card";
+            confirmBtn.className = "px-4 py-2 rounded-xl border-3 border-[#2D2D2D] text-white font-bold transition";
             confirmBtn.style.backgroundColor = confirmColor;
             confirmBtn.textContent = "确认";
             confirmBtn.onclick = () => {
