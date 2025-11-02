@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Task Matrix - Hybrid Design Mockup</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <style>
+        /* Hybrid Design System: Memphis Colors + Neumorphism Softness */
+        :root {
+            --bg-primary: #F5F5F5;      /* Soft Light Gray */
+            --bg-light: #FAFAFA;        /* Very Light */
+            --text-primary: #2D2D2D;    /* Deep Dark */
+            --text-secondary: #757575;  /* Medium Gray */
+
+            /* Memphis 彩色 */
+            --color-pink: #FF6B9D;      /* Hot Pink */
+            --color-orange: #FFA502;    /* Bright Orange */
+            --color-green: #26DE81;     /* Mint Green */
+            --color-blue: #00D2FC;      /* Sky Blue */
+            --color-red: #FF6B6B;       /* Red */
+
+            /* Neumorphism 陰影 */
+            --shadow-dark: rgba(0, 0, 0, 0.12);
+            --shadow-light: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            background: var(--bg-primary);
+            font-family: '-apple-system', 'Segoe UI', 'Helvetica Neue', sans-serif;
+            color: var(--text-primary);
+        }
+
+        /* Hybrid 元素：Neumorphism 陰影 + Memphis 色彩活力 */
+        .hybrid-element {
+            border-radius: 20px;
+            background: white;
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hybrid-element:hover {
+            box-shadow:
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        /* Hybrid 輸入框 */
+        .hybrid-input {
+            background: white;
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light);
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .hybrid-input:focus {
+            outline: none;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light),
+                        0 0 0 3px rgba(255, 107, 157, 0.1);
+        }
+
+        .hybrid-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Hybrid 按鈕 - 彩色但保持 Neumorphism 質感 */
+        .btn-hybrid {
+            border: none;
+            border-radius: 15px;
+            padding: 12px 28px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            box-shadow:
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+        }
+
+        .btn-hybrid.primary {
+            background: linear-gradient(135deg, var(--color-pink) 0%, #FF5A8D 100%);
+        }
+
+        .btn-hybrid.success {
+            background: linear-gradient(135deg, var(--color-green) 0%, #1EBE6B 100%);
+        }
+
+        .btn-hybrid.danger {
+            background: linear-gradient(135deg, var(--color-red) 0%, #FF5252 100%);
+        }
+
+        .btn-hybrid.secondary {
+            background: linear-gradient(135deg, var(--color-orange) 0%, #FF8F00 100%);
+        }
+
+        .btn-hybrid:hover {
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            transform: translateY(-3px);
+        }
+
+        .btn-hybrid:active {
+            box-shadow:
+                2px 2px 4px var(--shadow-dark),
+                -2px -2px 4px var(--shadow-light);
+            transform: translateY(1px);
+        }
+
+        /* Hybrid 象限 - 柔和彩色背景 */
+        .quadrant-hybrid {
+            border-radius: 25px;
+            padding: 25px;
+            min-height: 220px;
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            position: relative;
+            border: 2px solid;
+            background: white;
+        }
+
+        .quadrant-hybrid.q1 {
+            border-color: rgba(255, 107, 157, 0.3);
+            background: linear-gradient(135deg, #FFF5F8 0%, white 100%);
+        }
+
+        .quadrant-hybrid.q2 {
+            border-color: rgba(38, 222, 129, 0.3);
+            background: linear-gradient(135deg, #F5FFF8 0%, white 100%);
+        }
+
+        .quadrant-hybrid.q3 {
+            border-color: rgba(255, 165, 2, 0.3);
+            background: linear-gradient(135deg, #FFFAF0 0%, white 100%);
+        }
+
+        .quadrant-hybrid.q4 {
+            border-color: rgba(0, 210, 252, 0.3);
+            background: linear-gradient(135deg, #F5FBFF 0%, white 100%);
+        }
+
+        /* Hybrid 任務卡 */
+        .task-card-hybrid {
+            background: white;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow:
+                4px 4px 8px var(--shadow-dark),
+                -4px -4px 8px var(--shadow-light);
+            transition: all 0.3s ease;
+            border-left: 4px solid;
+        }
+
+        .task-card-hybrid.q1 {
+            border-left-color: var(--color-pink);
+        }
+
+        .task-card-hybrid.q2 {
+            border-left-color: var(--color-green);
+        }
+
+        .task-card-hybrid.q3 {
+            border-left-color: var(--color-orange);
+        }
+
+        .task-card-hybrid.q4 {
+            border-left-color: var(--color-blue);
+        }
+
+        .task-card-hybrid:hover {
+            box-shadow:
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        /* Hybrid 標題 */
+        .hybrid-title {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .hybrid-subtitle {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* 彩色標籤 */
+        .badge-hybrid {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .badge-pink {
+            background: rgba(255, 107, 157, 0.15);
+            color: var(--color-pink);
+        }
+
+        .badge-green {
+            background: rgba(38, 222, 129, 0.15);
+            color: var(--color-green);
+        }
+
+        .badge-orange {
+            background: rgba(255, 165, 2, 0.15);
+            color: var(--color-orange);
+        }
+
+        .badge-blue {
+            background: rgba(0, 210, 252, 0.15);
+            color: var(--color-blue);
+        }
+
+        /* 狀態指示器 */
+        .status-hybrid {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: white;
+            padding: 12px 18px;
+            border-radius: 15px;
+            box-shadow:
+                4px 4px 8px var(--shadow-dark),
+                -4px -4px 8px var(--shadow-light);
+        }
+
+        .status-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--color-green);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 進度環 */
+        .progress-hybrid {
+            filter: drop-shadow(3px 3px 6px var(--shadow-dark)) drop-shadow(-3px -3px 6px var(--shadow-light));
+        }
+
+        /* Header 樣式 */
+        .header-hybrid {
+            background: var(--bg-primary);
+            padding-bottom: 20px;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="flex min-h-screen flex-col">
+        <!-- Header -->
+        <header class="header-hybrid">
+            <div class="mx-auto w-full max-w-6xl px-6 py-8">
+                <!-- Brand -->
+                <div class="mb-8 flex items-center gap-4">
+                    <div class="hybrid-element p-4">
+                        <span class="text-4xl">⚛️</span>
+                    </div>
+                    <div>
+                        <h1 class="hybrid-title">Atomic Task Matrix</h1>
+                        <p class="hybrid-subtitle text-lg">完成比完美重要</p>
+                    </div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="hybrid-element p-6 mb-6">
+                    <div class="flex items-center gap-4 flex-wrap sm:flex-nowrap">
+                        <div class="status-hybrid">
+                            <div class="status-dot"></div>
+                            <span class="font-semibold" style="color: var(--text-primary);">已連線</span>
+                        </div>
+                        <div style="flex: 1; height: 1px; background: linear-gradient(90deg, transparent, var(--text-secondary), transparent);"></div>
+                        <p class="hybrid-subtitle text-sm">最後同步: 2 分鐘前</p>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="hybrid-element p-8">
+                    <form class="flex flex-col gap-4 lg:flex-row lg:items-center">
+                        <input
+                            type="text"
+                            placeholder="輸入新任務…"
+                            class="hybrid-input flex-1"
+                        >
+                        <button type="submit" class="btn-hybrid primary whitespace-nowrap">
+                            + 建立任務
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <div class="mx-auto max-w-6xl space-y-8">
+                <!-- Uncategorized Area -->
+                <div class="hybrid-element p-8">
+                    <h2 class="text-2xl font-bold mb-2" style="color: var(--text-primary);">📥 待分類區</h2>
+                    <p class="hybrid-subtitle mb-6">新任務先進來，思考後再分類</p>
+                    <div id="uncategorized-dropzone" class="space-y-3 p-6 rounded-2xl" style="background: var(--bg-light);">
+                        <div class="task-card-hybrid">
+                            <div class="flex justify-between items-start gap-3">
+                                <div>
+                                    <p class="font-semibold" style="color: var(--text-primary);">完成年度計畫審視</p>
+                                    <p class="text-sm hybrid-subtitle mt-1">建立於 15 分鐘前</p>
+                                </div>
+                                <button class="btn-hybrid success" style="padding: 6px 12px; font-size: 0.875rem;">✓ 完成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Quadrants Grid -->
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <!-- Q1: Urgent & Important -->
+                    <div class="quadrant-hybrid q1">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--color-pink);">🔥 重要且緊急</h3>
+                        <p class="hybrid-subtitle text-sm mb-4">立即處理，避免風險</p>
+                        <div class="space-y-3">
+                            <div class="task-card-hybrid q1">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">修復關鍵系統漏洞</p>
+                                        <p class="text-sm hybrid-subtitle mt-1">更新於 10 分鐘前</p>
+                                    </div>
+                                    <button class="btn-hybrid danger" style="padding: 6px 12px; font-size: 0.75rem;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q2: Important & Not Urgent -->
+                    <div class="quadrant-hybrid q2">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--color-green);">✨ 重要不緊急</h3>
+                        <p class="hybrid-subtitle text-sm mb-4">安排專注時間穩定推進</p>
+                        <div class="space-y-3">
+                            <div class="task-card-hybrid q2">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">設計新產品頁面</p>
+                                        <p class="text-sm hybrid-subtitle mt-1">建立於 1 小時前</p>
+                                    </div>
+                                    <button class="btn-hybrid success" style="padding: 6px 12px; font-size: 0.75rem;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q3: Urgent & Not Important -->
+                    <div class="quadrant-hybrid q3">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--color-orange);">⏰ 緊急不重要</h3>
+                        <p class="hybrid-subtitle text-sm mb-4">考慮委派或設定提醒</p>
+                        <div class="space-y-3">
+                            <div class="task-card-hybrid q3">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">回覆日常郵件</p>
+                                        <p class="text-sm hybrid-subtitle mt-1">更新於 45 分鐘前</p>
+                                    </div>
+                                    <button class="btn-hybrid secondary" style="padding: 6px 12px; font-size: 0.75rem;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q4: Not Urgent & Not Important -->
+                    <div class="quadrant-hybrid q4">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--color-blue);">🎯 不緊急不重要</h3>
+                        <p class="hybrid-subtitle text-sm mb-4">有時間再做，或直接刪除</p>
+                        <div class="space-y-3">
+                            <div class="task-card-hybrid q4">
+                                <div class="flex justify-between items-start gap-3">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">看技術文章</p>
+                                        <p class="text-sm hybrid-subtitle mt-1">建立於 3 小時前</p>
+                                    </div>
+                                    <button class="btn-hybrid" style="background: linear-gradient(135deg, var(--color-blue) 0%, #00BFFF 100%); padding: 6px 12px; font-size: 0.75rem;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats -->
+                <div class="hybrid-element p-8">
+                    <h2 class="text-2xl font-bold mb-8" style="color: var(--text-primary);">📊 本週動能</h2>
+                    <div class="flex flex-col gap-8 sm:flex-row sm:items-center">
+                        <!-- Progress Ring -->
+                        <div class="relative flex items-center justify-center">
+                            <svg width="140" height="140" viewBox="0 0 140 140" class="progress-hybrid">
+                                <defs>
+                                    <linearGradient id="gradHybrid" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:var(--color-pink);stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:var(--color-green);stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="70" cy="70" r="55" stroke="var(--bg-light)" stroke-width="12" fill="none"/>
+                                <circle cx="70" cy="70" r="55" stroke="url(#gradHybrid)" stroke-width="12" fill="none" stroke-dasharray="138.23" stroke-dashoffset="34.56" stroke-linecap="round"/>
+                            </svg>
+                            <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span class="text-3xl font-bold" style="color: var(--color-pink);">75%</span>
+                                <span class="text-sm hybrid-subtitle">完成率</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="flex-1 space-y-4">
+                            <div class="hybrid-element p-6">
+                                <p class="hybrid-subtitle text-sm mb-2">本週完成任務</p>
+                                <p class="text-3xl font-bold" style="color: var(--color-pink);">12 項</p>
+                            </div>
+                            <div class="hybrid-element p-6">
+                                <p class="hybrid-subtitle text-sm mb-2">平均存活日</p>
+                                <p class="text-3xl font-bold" style="color: var(--color-green);">3.2 天</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-var(--bg-primary) py-6 mt-12">
+            <div class="mx-auto max-w-6xl px-6 text-center">
+                <p class="font-semibold" style="color: var(--text-primary);">Atomic Task Matrix · Hybrid Design © 2025</p>
+                <p class="text-sm hybrid-subtitle">活力 × 舒適 × 高效</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="config.js" defer></script>
+</body>
+</html>

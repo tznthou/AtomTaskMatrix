@@ -54,15 +54,29 @@ window.BackendGateway = {
             options.headers = { "Content-Type": "text/plain;charset=UTF-8" };
         }
 
-        const response = await fetch(url, options);
-        if (!response.ok) {
-            const text = await response.text();
-            const error = new Error("API_REQUEST_FAILED");
-            error.status = response.status;
-            error.body = text;
-            throw error;
+        try {
+            const response = await fetch(url, options);
+            if (!response.ok) {
+                const text = await response.text();
+                const error = new Error("API_REQUEST_FAILED");
+                error.status = response.status;
+                error.body = text;
+                console.error(`[BackendGateway] ${options.method} ${path} failed with status ${response.status}:`, text);
+                throw error;
+            }
+            return this._parseResponse(response, parseJson);
+        } catch (fetchError) {
+            // ⚠️ 網路錯誤或 CORS 問題會在這裡被捕捉
+            if (fetchError.message === "API_REQUEST_FAILED") {
+                throw fetchError;  // 已處理的 API 錯誤，直接拋出
+            }
+            // 網路級別的錯誤（CORS, 無法連接等）
+            console.error(`[BackendGateway] ${options.method} ${path} network error:`, fetchError.message);
+            throw new Error(`Network error calling ${path}: ${fetchError.message}`);
         }
+    }
 
+    async _parseResponse(response, parseJson = true) {
         if (!parseJson || response.status === 204) {
             return null;
         }

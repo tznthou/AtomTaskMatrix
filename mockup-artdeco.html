@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Task Matrix - Art Deco Design Mockup</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <style>
+        /* Art Deco Design System */
+        :root {
+            --dark-bg: #1A1A1A;         /* Deep Black */
+            --card-bg: #2D2D2D;         /* Dark Gray */
+            --accent-gold: #D4AF37;     /* Gold */
+            --accent-silver: #E8E8E8;   /* Silver */
+            --text-light: #F5F5F5;      /* Off White */
+            --text-secondary: #B8B8B8;  /* Light Gray */
+            --primary-teal: #1E7B8F;    /* Deep Teal */
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--dark-bg);
+            font-family: 'Georgia', 'Garamond', serif;
+            color: var(--text-light);
+        }
+
+        /* Art Deco 核心：金色線條、對稱、幾何裝飾 */
+        .artdeco-border-gold {
+            border-top: 3px solid var(--accent-gold);
+            border-bottom: 3px solid var(--accent-gold);
+            padding: 2px 0;
+        }
+
+        .artdeco-border-silver {
+            border-left: 2px solid var(--accent-silver);
+            border-right: 2px solid var(--accent-silver);
+            padding: 0 2px;
+        }
+
+        /* Art Deco 卡片 */
+        .artdeco-card {
+            background: var(--card-bg);
+            border: 2px solid var(--accent-gold);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .artdeco-card::before,
+        .artdeco-card::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--accent-gold);
+        }
+
+        .artdeco-card::before {
+            top: -10px;
+            left: -10px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .artdeco-card::after {
+            bottom: -10px;
+            right: -10px;
+            border-left: none;
+            border-top: none;
+        }
+
+        /* Art Deco 角落裝飾 */
+        .artdeco-corner {
+            position: relative;
+        }
+
+        .artdeco-corner::before,
+        .artdeco-corner::after {
+            content: '';
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: linear-gradient(135deg, var(--accent-gold) 50%, transparent 50%);
+        }
+
+        .artdeco-corner::before {
+            top: 0;
+            right: 0;
+        }
+
+        .artdeco-corner::after {
+            bottom: 0;
+            left: 0;
+            transform: rotate(180deg);
+        }
+
+        /* Art Deco 標題 */
+        .artdeco-title {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 3px;
+            color: var(--accent-gold);
+            text-transform: uppercase;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .artdeco-subtitle {
+            font-size: 1.25rem;
+            letter-spacing: 2px;
+            color: var(--accent-silver);
+            font-style: italic;
+        }
+
+        /* Art Deco 按鈕 */
+        .btn-artdeco {
+            background: var(--card-bg);
+            color: var(--accent-gold);
+            border: 2px solid var(--accent-gold);
+            padding: 10px 24px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-artdeco::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--accent-gold);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .btn-artdeco:hover::before {
+            left: 0;
+        }
+
+        .btn-artdeco:hover {
+            color: var(--dark-bg);
+        }
+
+        /* Art Deco 輸入框 */
+        .artdeco-input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid var(--accent-gold);
+            color: var(--text-light);
+            padding: 12px 0;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .artdeco-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-silver);
+            box-shadow: 0 2px 0 var(--accent-gold);
+        }
+
+        .artdeco-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Art Deco 象限 */
+        .quadrant-artdeco {
+            background: var(--card-bg);
+            border: 3px solid var(--accent-gold);
+            padding: 30px;
+            min-height: 240px;
+            position: relative;
+        }
+
+        /* Art Deco 幾何線條 */
+        .artdeco-line-top {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            width: 40%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-gold) 50%, transparent 100%);
+            transform: translateX(-50%);
+        }
+
+        .artdeco-line-bottom {
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            width: 40%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent 0%, var(--accent-gold) 50%, transparent 100%);
+            transform: translateX(-50%);
+        }
+
+        /* Art Deco 任務卡 */
+        .task-card-artdeco {
+            background: transparent;
+            border-left: 4px solid var(--accent-gold);
+            padding-left: 16px;
+            margin: 12px 0;
+            position: relative;
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+
+        .task-card-artdeco::before {
+            content: '';
+            position: absolute;
+            left: -4px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            background: var(--accent-gold);
+        }
+
+        /* Art Deco 狀態標籤 */
+        .status-artdeco {
+            display: inline-block;
+            border: 2px solid var(--accent-gold);
+            padding: 6px 12px;
+            font-size: 0.75rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            color: var(--accent-gold);
+        }
+
+        /* Art Deco 分隔符 */
+        .artdeco-divider {
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                var(--accent-gold) 20%,
+                var(--accent-gold) 80%,
+                transparent 100%);
+            margin: 16px 0;
+        }
+
+        /* Header 樣式 */
+        .header-artdeco {
+            background: var(--dark-bg);
+            border-bottom: 3px double var(--accent-gold);
+            padding: 40px 0 30px;
+        }
+
+        /* 進度環 */
+        .progress-ring-artdeco {
+            filter: drop-shadow(0 0 8px var(--accent-gold));
+        }
+
+        /* 裝飾符號 */
+        .deco-symbol {
+            color: var(--accent-gold);
+            font-size: 1.5rem;
+        }
+
+        /* Footer 樣式 */
+        .footer-artdeco {
+            border-top: 3px double var(--accent-gold);
+            padding: 30px 0;
+            background: var(--dark-bg);
+        }
+
+        /* 微妙的背景圖案 */
+        .pattern-diagonal {
+            background-image:
+                repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(212, 175, 55, 0.03) 35px, rgba(212, 175, 55, 0.03) 70px);
+        }
+    </style>
+</head>
+<body class="pattern-diagonal">
+    <div class="flex min-h-screen flex-col">
+        <!-- Header -->
+        <header class="header-artdeco">
+            <div class="mx-auto w-full max-w-6xl px-6">
+                <!-- Title Section -->
+                <div class="mb-10 text-center">
+                    <div class="artdeco-border-gold inline-block w-full mb-6">
+                        <h1 class="artdeco-title">⚛ ATOMIC TASK MATRIX</h1>
+                    </div>
+                    <p class="artdeco-subtitle">完成比完美重要</p>
+                    <div class="artdeco-divider"></div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="artdeco-card p-6 mb-8">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <span class="deco-symbol">🟢</span>
+                            <div>
+                                <p style="color: var(--accent-gold); font-weight: bold;">已連線 Google Sheets</p>
+                                <p style="color: var(--text-secondary); font-size: 0.875rem;">最後同步: 2 分鐘前</p>
+                            </div>
+                        </div>
+                        <div style="border-left: 2px solid var(--accent-gold); height: 30px; padding-left: 16px;">
+                            <span class="status-artdeco">實時同步中</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="artdeco-card p-10 artdeco-corner">
+                    <form class="flex flex-col gap-6 lg:flex-row lg:items-end">
+                        <div class="flex-1">
+                            <label class="block text-sm mb-3" style="color: var(--accent-gold); letter-spacing: 1px; text-transform: uppercase;">新任務</label>
+                            <input
+                                type="text"
+                                placeholder="輸入任務…"
+                                class="artdeco-input w-full"
+                            >
+                        </div>
+                        <button type="submit" class="btn-artdeco whitespace-nowrap">+ 建立</button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-8">
+            <div class="mx-auto max-w-6xl space-y-12">
+                <!-- Uncategorized Area -->
+                <div class="artdeco-card p-8 artdeco-corner">
+                    <h2 class="text-2xl mb-2" style="color: var(--accent-gold); letter-spacing: 2px; text-transform: uppercase;">📥 待分類區</h2>
+                    <p style="color: var(--text-secondary); font-style: italic; margin-bottom: 20px;">新任務先進來，思考後再派位</p>
+                    <div class="artdeco-divider"></div>
+                    <div id="uncategorized-dropzone" class="mt-6 space-y-3">
+                        <div class="task-card-artdeco">
+                            <div class="flex justify-between items-start gap-4">
+                                <div>
+                                    <p class="text-lg font-semibold text-light">完成年度審視</p>
+                                    <p style="color: var(--text-secondary); font-size: 0.875rem; margin-top: 4px;">建立於 15 分鐘前</p>
+                                </div>
+                                <button class="status-artdeco">✓ 完成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Quadrants with Art Deco Style -->
+                <div class="grid gap-8 lg:grid-cols-2">
+                    <!-- Q1: Urgent & Important -->
+                    <div class="quadrant-artdeco artdeco-corner">
+                        <div class="artdeco-line-top"></div>
+                        <h3 class="text-xl mb-2" style="color: #FF6B6B; letter-spacing: 1px; text-transform: uppercase;">🔥 重要且緊急</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">立即處理</p>
+                        <div class="space-y-3">
+                            <div class="task-card-artdeco">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <p class="font-semibold">修復系統漏洞</p>
+                                        <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 4px;">更新於 10 分鐘前</p>
+                                    </div>
+                                    <button class="btn-artdeco" style="font-size: 0.75rem; padding: 6px 12px;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="artdeco-line-bottom"></div>
+                    </div>
+
+                    <!-- Q2: Important & Not Urgent -->
+                    <div class="quadrant-artdeco artdeco-corner">
+                        <div class="artdeco-line-top"></div>
+                        <h3 class="text-xl mb-2" style="color: #26DE81; letter-spacing: 1px; text-transform: uppercase;">✨ 重要不緊急</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">穩定推進</p>
+                        <div class="space-y-3">
+                            <div class="task-card-artdeco">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <p class="font-semibold">設計新介面</p>
+                                        <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 4px;">建立於 1 小時前</p>
+                                    </div>
+                                    <button class="btn-artdeco" style="font-size: 0.75rem; padding: 6px 12px;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="artdeco-line-bottom"></div>
+                    </div>
+
+                    <!-- Q3: Urgent & Not Important -->
+                    <div class="quadrant-artdeco artdeco-corner">
+                        <div class="artdeco-line-top"></div>
+                        <h3 class="text-xl mb-2" style="color: #FFA502; letter-spacing: 1px; text-transform: uppercase;">⏰ 緊急不重要</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">可委派</p>
+                        <div class="space-y-3">
+                            <div class="task-card-artdeco">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <p class="font-semibold">回覆郵件</p>
+                                        <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 4px;">更新於 45 分鐘前</p>
+                                    </div>
+                                    <button class="btn-artdeco" style="font-size: 0.75rem; padding: 6px 12px;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="artdeco-line-bottom"></div>
+                    </div>
+
+                    <!-- Q4: Not Urgent & Not Important -->
+                    <div class="quadrant-artdeco artdeco-corner">
+                        <div class="artdeco-line-top"></div>
+                        <h3 class="text-xl mb-2" style="color: var(--accent-silver); letter-spacing: 1px; text-transform: uppercase;">🎯 低優先級</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem; margin-bottom: 16px;">或直接刪除</p>
+                        <div class="space-y-3">
+                            <div class="task-card-artdeco">
+                                <div class="flex justify-between items-start gap-4">
+                                    <div>
+                                        <p class="font-semibold">看技術文章</p>
+                                        <p style="color: var(--text-secondary); font-size: 0.75rem; margin-top: 4px;">建立於 3 小時前</p>
+                                    </div>
+                                    <button class="btn-artdeco" style="font-size: 0.75rem; padding: 6px 12px;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="artdeco-line-bottom"></div>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats -->
+                <div class="artdeco-card p-10 artdeco-corner">
+                    <h2 class="text-2xl mb-8 text-center" style="color: var(--accent-gold); letter-spacing: 2px; text-transform: uppercase;">📊 本週動能</h2>
+                    <div class="artdeco-divider"></div>
+                    <div class="flex flex-col gap-10 sm:flex-row sm:items-center mt-8">
+                        <!-- Progress Circle -->
+                        <div class="relative flex items-center justify-center flex-1">
+                            <svg width="160" height="160" viewBox="0 0 160 160" class="progress-ring-artdeco">
+                                <circle cx="80" cy="80" r="65" stroke="var(--card-bg)" stroke-width="2" fill="none"/>
+                                <circle cx="80" cy="80" r="65" stroke="var(--accent-gold)" stroke-width="3" fill="none" stroke-dasharray="156.94" stroke-dashoffset="39.24" stroke-linecap="round"/>
+                                <circle cx="80" cy="80" r="65" stroke="transparent" stroke-width="1" fill="none" stroke-dasharray="4" stroke-dashoffset="0" opacity="0.2"/>
+                            </svg>
+                            <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span class="text-4xl font-bold" style="color: var(--accent-gold);">75%</span>
+                                <span style="color: var(--accent-silver); font-size: 0.875rem; letter-spacing: 1px;">完成率</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="flex-1 space-y-6">
+                            <div>
+                                <p style="color: var(--accent-gold); font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">本週完成</p>
+                                <p class="text-3xl font-bold" style="color: var(--accent-silver);">12 項</p>
+                            </div>
+                            <div class="artdeco-divider"></div>
+                            <div>
+                                <p style="color: var(--accent-gold); font-size: 0.75rem; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 8px;">平均存活</p>
+                                <p class="text-3xl font-bold" style="color: var(--accent-silver);">3.2 天</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer-artdeco">
+            <div class="mx-auto max-w-6xl px-6 text-center">
+                <div class="artdeco-border-gold pb-4 inline-block w-full">
+                    <p class="text-sm" style="color: var(--accent-gold); letter-spacing: 2px; text-transform: uppercase;">Atomic Task Matrix</p>
+                    <p class="text-xs" style="color: var(--text-secondary); letter-spacing: 1px; margin-top: 4px;">Art Deco Design © 2025</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script src="config.js" defer></script>
+</body>
+</html>

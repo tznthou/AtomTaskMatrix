@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Task Matrix - Memphis Design Mockup</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <style>
+        /* Memphis Design System */
+        :root {
+            --primary: #FF6B9D;      /* Hot Pink */
+            --secondary: #FFA502;    /* Bright Orange */
+            --tertiary: #C44569;     /* Deep Pink */
+            --accent1: #26DE81;      /* Mint Green */
+            --accent2: #00D2FC;      /* Sky Blue */
+            --dark: #2D2D2D;         /* Deep Dark */
+            --light: #FFF9E6;        /* Warm White */
+        }
+
+        body {
+            background: linear-gradient(135deg, #FFF9E6 0%, #FFE6F0 100%);
+            font-family: 'Arial', 'Helvetica', sans-serif;
+        }
+
+        /* Memphis 風格：粗黑邊框 + 圓角 + 不規則形狀 */
+        .memphis-card {
+            background: white;
+            border: 4px solid #2D2D2D;
+            border-radius: 30px;
+            position: relative;
+            box-shadow:
+                8px 8px 0 rgba(255, 107, 157, 0.3),
+                12px 12px 0 rgba(255, 165, 2, 0.2);
+            transform: rotate(-1deg);
+        }
+
+        .memphis-card:nth-child(even) {
+            transform: rotate(1deg);
+        }
+
+        /* Memphis 顏色塊 */
+        .memphis-pink { background: var(--primary) !important; }
+        .memphis-orange { background: var(--secondary) !important; }
+        .memphis-blue { background: var(--accent2) !important; }
+        .memphis-green { background: var(--accent1) !important; }
+        .memphis-dark { background: var(--dark) !important; color: white; }
+
+        /* Memphis 按鈕 */
+        .btn-memphis {
+            background: var(--primary);
+            border: 3px solid #2D2D2D;
+            border-radius: 20px;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            cursor: pointer;
+            transform: rotate(-2deg);
+            transition: all 0.2s ease;
+            box-shadow: 5px 5px 0 rgba(0,0,0,0.2);
+        }
+
+        .btn-memphis:hover {
+            transform: rotate(0deg) scale(1.05);
+            box-shadow: 8px 8px 0 rgba(0,0,0,0.3);
+        }
+
+        .btn-memphis.secondary {
+            background: var(--secondary);
+            transform: rotate(2deg);
+        }
+
+        .btn-memphis.success {
+            background: var(--accent1);
+            transform: rotate(1deg);
+        }
+
+        .btn-memphis.danger {
+            background: #FF6B6B;
+            transform: rotate(-1deg);
+        }
+
+        /* Memphis 標題 */
+        .memphis-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            color: var(--primary);
+            text-shadow: 3px 3px 0 var(--secondary), 6px 6px 0 var(--accent2);
+            letter-spacing: -2px;
+        }
+
+        /* Memphis 象限 */
+        .quadrant-memphis {
+            border: 5px solid #2D2D2D;
+            border-radius: 25px;
+            padding: 20px;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .quadrant-memphis::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            opacity: 0.2;
+        }
+
+        .quadrant-memphis.q1 {
+            background: #FFE6E6;
+            border-color: #FF6B6B;
+        }
+
+        .quadrant-memphis.q2 {
+            background: #E6F9F0;
+            border-color: #26DE81;
+        }
+
+        .quadrant-memphis.q3 {
+            background: #FFE6CC;
+            border-color: #FFA502;
+        }
+
+        .quadrant-memphis.q4 {
+            background: #E6F2FF;
+            border-color: #00D2FC;
+        }
+
+        /* 幾何裝飾 */
+        .geometric-shape {
+            position: absolute;
+            opacity: 0.1;
+        }
+
+        .circle-deco {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            border: 3px solid #2D2D2D;
+        }
+
+        .square-deco {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #2D2D2D;
+            transform: rotate(45deg);
+        }
+
+        /* Memphis 波浪邊框 */
+        .wave-border {
+            position: relative;
+            border-bottom: 5px dashed #2D2D2D;
+        }
+
+        /* Memphis 任務卡 */
+        .task-card-memphis {
+            background: white;
+            border: 4px solid #2D2D2D;
+            border-radius: 20px;
+            padding: 15px;
+            margin: 10px 0;
+            box-shadow: 6px 6px 0 rgba(255, 107, 157, 0.2);
+            transform: rotate(-0.5deg);
+            transition: all 0.3s ease;
+        }
+
+        .task-card-memphis:hover {
+            transform: rotate(0.5deg) translateY(-2px);
+            box-shadow: 8px 8px 0 rgba(255, 107, 157, 0.3);
+        }
+
+        /* 斜體文字 */
+        .italic-text {
+            font-style: italic;
+            font-weight: bold;
+        }
+
+        /* 進度環 - Memphis 風格 */
+        .progress-ring-memphis {
+            filter: drop-shadow(0 0 0 3px #2D2D2D);
+        }
+
+        /* Header 裝飾 */
+        .header-deco {
+            border-top: 5px dashed var(--primary);
+            border-bottom: 5px dashed var(--secondary);
+            padding: 20px 0;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Decorative Background Shapes -->
+    <div class="fixed top-10 right-10 opacity-20 pointer-events-none">
+        <div class="circle-deco" style="border-color: var(--primary);"></div>
+    </div>
+    <div class="fixed bottom-20 left-20 opacity-20 pointer-events-none">
+        <div class="square-deco" style="border-color: var(--secondary);"></div>
+    </div>
+
+    <div class="flex min-h-screen flex-col">
+        <!-- Header with Memphis Style -->
+        <header class="header-deco bg-white">
+            <div class="mx-auto w-full max-w-6xl px-6 py-6">
+                <div class="mb-6 flex items-center gap-4">
+                    <div class="memphis-card p-4 bg-white">
+                        <span class="text-4xl">⚛️</span>
+                    </div>
+                    <div>
+                        <h1 class="memphis-title">Atomic Task Matrix</h1>
+                        <p class="italic-text text-lg" style="color: var(--secondary);">完成比完美重要</p>
+                    </div>
+                </div>
+
+                <!-- Status Bar Memphis Style -->
+                <div class="memphis-card bg-white p-4 flex items-center gap-3">
+                    <span class="text-2xl">🟢</span>
+                    <div>
+                        <p style="color: var(--primary); font-weight: bold;">已連線 Google Sheets</p>
+                        <p class="text-sm" style="color: var(--secondary);">最後同步: 2 分鐘前</p>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="mt-6 memphis-card p-6 bg-white">
+                    <form class="flex flex-col gap-4 lg:flex-row lg:items-center">
+                        <div class="flex-1">
+                            <input
+                                type="text"
+                                placeholder="輸入任務… 例: 完成報告"
+                                class="w-full rounded-2xl border-4 border-black px-6 py-4 text-lg font-bold placeholder-gray-400 outline-none"
+                                style="border-color: #2D2D2D;"
+                            >
+                        </div>
+                        <button class="btn-memphis">
+                            + 建立任務
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <div class="mx-auto max-w-6xl space-y-8">
+                <!-- Uncategorized Area -->
+                <div class="memphis-card p-6 bg-white">
+                    <div class="mb-4">
+                        <h2 class="text-2xl font-black" style="color: var(--primary);">📥 待分類區</h2>
+                        <p class="italic-text" style="color: var(--secondary);">新任務先進來，仔細想想再分類！</p>
+                    </div>
+                    <div id="uncategorized-dropzone" class="min-h-[120px] space-y-3 rounded-2xl border-4 border-dashed border-black p-4" style="border-color: #2D2D2D; background: #FFF9E6;">
+                        <div class="task-card-memphis">
+                            <div class="flex justify-between items-start gap-3">
+                                <div>
+                                    <p class="font-bold text-lg">完成 Q4 季度報告</p>
+                                    <p class="text-sm italic-text" style="color: var(--secondary);">建立於 10 分鐘前</p>
+                                </div>
+                                <button class="btn-memphis success" style="padding: 6px 12px; font-size: 0.875rem;">✓ 完成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Quadrants Grid -->
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <!-- Q1: Urgent & Important -->
+                    <div class="memphis-card quadrant-memphis q1 p-6">
+                        <h3 class="text-xl font-black mb-2" style="color: #FF6B6B;">🔥 重要且緊急</h3>
+                        <p class="italic-text text-sm mb-4" style="color: #C44569;">立即處理！別拖延</p>
+                        <div class="space-y-2">
+                            <div class="task-card-memphis bg-white border-4 border-red-400">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold">修復關鍵漏洞</p>
+                                        <p class="text-xs" style="color: var(--secondary);">更新於 5 分鐘前</p>
+                                    </div>
+                                    <button class="btn-memphis danger" style="padding: 4px 8px; font-size: 0.75rem;">AI 拆解</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q2: Important & Not Urgent -->
+                    <div class="memphis-card quadrant-memphis q2 p-6">
+                        <h3 class="text-xl font-black mb-2" style="color: #26DE81;">✨ 重要不緊急</h3>
+                        <p class="italic-text text-sm mb-4" style="color: #0FA060;">穩定推進，慢工出細活</p>
+                        <div class="space-y-2">
+                            <div class="task-card-memphis bg-white border-4" style="border-color: #26DE81;">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold">設計新首頁</p>
+                                        <p class="text-xs" style="color: var(--secondary);">建立於 1 小時前</p>
+                                    </div>
+                                    <button class="btn-memphis success" style="padding: 4px 8px; font-size: 0.75rem;">AI 拆解</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q3: Urgent & Not Important -->
+                    <div class="memphis-card quadrant-memphis q3 p-6">
+                        <h3 class="text-xl font-black mb-2" style="color: #FFA502;">⏰ 緊急不重要</h3>
+                        <p class="italic-text text-sm mb-4" style="color: #CC7700;">可以委派或延後</p>
+                        <div class="space-y-2">
+                            <div class="task-card-memphis bg-white border-4" style="border-color: #FFA502;">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold">回覆郵件</p>
+                                        <p class="text-xs" style="color: var(--secondary);">更新於 30 分鐘前</p>
+                                    </div>
+                                    <button class="btn-memphis secondary" style="padding: 4px 8px; font-size: 0.75rem;">AI 拆解</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q4: Not Urgent & Not Important -->
+                    <div class="memphis-card quadrant-memphis q4 p-6">
+                        <h3 class="text-xl font-black mb-2" style="color: #00D2FC;">🎯 不緊急不重要</h3>
+                        <p class="italic-text text-sm mb-4" style="color: #0099CC;">有空再做或直接刪除</p>
+                        <div class="space-y-2">
+                            <div class="task-card-memphis bg-white border-4" style="border-color: #00D2FC;">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-bold">看有趣的文章</p>
+                                        <p class="text-xs" style="color: var(--secondary);">建立於 3 小時前</p>
+                                    </div>
+                                    <button class="btn-memphis" style="padding: 4px 8px; font-size: 0.75rem;">AI 拆解</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats -->
+                <div class="memphis-card p-6 bg-white">
+                    <h2 class="text-2xl font-black mb-6" style="color: var(--primary);">📊 本週動能</h2>
+                    <div class="flex flex-col gap-8 sm:flex-row sm:items-center">
+                        <!-- Progress Circle -->
+                        <div class="relative flex items-center justify-center">
+                            <svg width="140" height="140" viewBox="0 0 140 140" class="progress-ring-memphis">
+                                <circle cx="70" cy="70" r="55" stroke="#F0F0F0" stroke-width="12" fill="none"/>
+                                <circle cx="70" cy="70" r="55" stroke="var(--primary)" stroke-width="12" fill="none" stroke-dasharray="138.23" stroke-dashoffset="34.56" stroke-linecap="round"/>
+                            </svg>
+                            <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span class="text-3xl font-black" style="color: var(--primary);">75%</span>
+                                <span class="italic-text text-sm">完成率</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="flex-1 space-y-4">
+                            <div class="memphis-card p-4 bg-white border-4 border-black">
+                                <p class="italic-text text-sm" style="color: var(--secondary);">本週完成</p>
+                                <p class="text-2xl font-black" style="color: var(--primary);">12 項</p>
+                            </div>
+                            <div class="memphis-card p-4 bg-white border-4 border-black">
+                                <p class="italic-text text-sm" style="color: var(--secondary);">平均存活</p>
+                                <p class="text-2xl font-black" style="color: var(--secondary);">3.2 天</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white border-t-4 border-black">
+            <div class="mx-auto max-w-6xl px-6 py-4 text-center">
+                <p class="italic-text font-bold" style="color: var(--primary);">
+                    Atomic Task Matrix · Memphis Design © 2025
+                </p>
+                <p class="text-sm" style="color: var(--secondary);">大膽創意 × 高效執行</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="config.js" defer></script>
+</body>
+</html>

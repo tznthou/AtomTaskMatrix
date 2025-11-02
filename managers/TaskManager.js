@@ -11,9 +11,16 @@
 
 window.TaskManager = {
     async initialize() {
-        await this.reloadTasks(true);
+        try {
+            await this.reloadTasks(true);
+        } catch (error) {
+            // ⚠️ 即使初始化失敗，仍需啟動 ConnectionMonitor 以便進行定期重試
+            console.error("初始同步失敗，但將啟動連線監控以進行恢復:", error);
+        }
+
         if (Config.hasApi()) {
             this.refreshStats();
+            // ✅ 無論初始化是否成功，都啟動連線監控
             ConnectionMonitor.start();
         }
     },

@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atomic Task Matrix - Neumorphism Design Mockup</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <style>
+        /* Neumorphism Design System */
+        :root {
+            --bg-primary: #E8EBED;      /* Soft Gray */
+            --bg-light: #F0F3F7;        /* Very Light Gray */
+            --text-primary: #31404B;    /* Deep Gray */
+            --text-secondary: #6B7D8A;  /* Medium Gray */
+            --accent: #4D8B9E;          /* Teal Blue */
+            --accent-light: #7DB3C6;    /* Light Teal */
+            --shadow-dark: rgba(0, 0, 0, 0.15);
+            --shadow-light: rgba(255, 255, 255, 0.8);
+        }
+
+        body {
+            background: var(--bg-primary);
+            font-family: 'Segoe UI', 'Helvetica Neue', sans-serif;
+            color: var(--text-primary);
+        }
+
+        /* Neumorphism 核心：柔和陰影、立體感、一致的色系 */
+        .neu-element {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .neu-element:hover {
+            box-shadow:
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .neu-element:active {
+            box-shadow:
+                2px 2px 4px var(--shadow-dark),
+                -2px -2px 4px var(--shadow-light);
+            transform: translateY(1px);
+        }
+
+        /* 內凹式輸入框 */
+        .neu-input {
+            background: var(--bg-primary);
+            border: none;
+            border-radius: 15px;
+            padding: 15px 20px;
+            color: var(--text-primary);
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light);
+            transition: box-shadow 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .neu-input:focus {
+            outline: none;
+            box-shadow: inset 4px 4px 8px var(--shadow-dark),
+                        inset -4px -4px 8px var(--shadow-light),
+                        inset 0 0 0 3px var(--accent);
+        }
+
+        .neu-input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        /* Neumorphism 按鈕 */
+        .btn-neu {
+            background: var(--bg-primary);
+            border: none;
+            border-radius: 15px;
+            padding: 12px 28px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow:
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .btn-neu.primary {
+            background: linear-gradient(135deg, var(--accent) 0%, var(--accent-light) 100%);
+            color: white;
+        }
+
+        .btn-neu:hover {
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        .btn-neu:active {
+            box-shadow:
+                2px 2px 4px var(--shadow-dark),
+                -2px -2px 4px var(--shadow-light);
+            transform: translateY(1px);
+        }
+
+        /* Neumorphism 象限 - 微妙色調 */
+        .quadrant-neu {
+            background: var(--bg-light);
+            border-radius: 25px;
+            padding: 25px;
+            min-height: 220px;
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            position: relative;
+        }
+
+        /* 象限的微妙色調變化 */
+        .quad-teal { background: linear-gradient(135deg, #E8F1F5 0%, #E8EBED 100%); }
+        .quad-warm { background: linear-gradient(135deg, #FBF3F0 0%, #E8EBED 100%); }
+        .quad-mint { background: linear-gradient(135deg, #EFF8F5 0%, #E8EBED 100%); }
+        .quad-cool { background: linear-gradient(135deg, #F0F5F9 0%, #E8EBED 100%); }
+
+        /* Neumorphism 任務卡 */
+        .task-card-neu {
+            background: var(--bg-primary);
+            border-radius: 18px;
+            padding: 16px;
+            margin: 10px 0;
+            box-shadow:
+                6px 6px 12px var(--shadow-dark),
+                -6px -6px 12px var(--shadow-light);
+            transition: all 0.3s ease;
+        }
+
+        .task-card-neu:hover {
+            box-shadow:
+                8px 8px 16px var(--shadow-dark),
+                -8px -8px 16px var(--shadow-light);
+            transform: translateY(-2px);
+        }
+
+        /* Neumorphism 標題 */
+        .neu-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .neu-subtitle {
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        /* Neumorphism 分隔線 */
+        .neu-divider {
+            height: 1px;
+            background: linear-gradient(90deg,
+                transparent 0%,
+                var(--shadow-dark) 50%,
+                transparent 100%);
+        }
+
+        /* 狀態指示器 */
+        .status-neu {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg-primary);
+            padding: 10px 16px;
+            border-radius: 12px;
+            box-shadow:
+                4px 4px 8px var(--shadow-dark),
+                -4px -4px 8px var(--shadow-light);
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4CAF50;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* 進度環 */
+        .progress-neu {
+            filter: drop-shadow(3px 3px 6px var(--shadow-dark)) drop-shadow(-3px -3px 6px var(--shadow-light));
+        }
+
+        /* Header 樣式 */
+        .header-neu {
+            background: var(--bg-primary);
+            padding-bottom: 30px;
+            box-shadow:
+                0 8px 16px var(--shadow-dark),
+                0 -8px 16px var(--shadow-light);
+        }
+
+        /* 浮凸文字效果 */
+        .text-emboss {
+            text-shadow:
+                2px 2px 0 var(--shadow-light),
+                -2px -2px 0 var(--shadow-dark);
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="flex min-h-screen flex-col">
+        <!-- Header -->
+        <header class="header-neu">
+            <div class="mx-auto w-full max-w-6xl px-6 py-8">
+                <!-- Brand -->
+                <div class="mb-8 flex items-center gap-4">
+                    <div class="neu-element p-4 bg-white">
+                        <span class="text-4xl">⚛️</span>
+                    </div>
+                    <div>
+                        <h1 class="neu-title text-emboss">Atomic Task Matrix</h1>
+                        <p class="neu-subtitle text-lg">完成比完美重要</p>
+                    </div>
+                </div>
+
+                <!-- Status Bar -->
+                <div class="neu-element p-6 bg-white mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="status-neu">
+                            <div class="status-dot"></div>
+                            <span class="font-semibold" style="color: var(--text-primary);">已連線</span>
+                        </div>
+                        <div class="neu-divider flex-1"></div>
+                        <p class="neu-subtitle text-sm">最後同步: 2 分鐘前</p>
+                    </div>
+                </div>
+
+                <!-- Input Section -->
+                <div class="neu-element p-8 bg-white">
+                    <form class="flex flex-col gap-4 lg:flex-row lg:items-center">
+                        <input
+                            type="text"
+                            placeholder="輸入新任務…"
+                            class="neu-input flex-1"
+                        >
+                        <button type="submit" class="btn-neu primary whitespace-nowrap">
+                            + 建立任務
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6">
+            <div class="mx-auto max-w-6xl space-y-8">
+                <!-- Uncategorized Area -->
+                <div class="neu-element p-8 bg-white">
+                    <h2 class="text-2xl font-bold mb-2" style="color: var(--text-primary);">📥 待分類區</h2>
+                    <p class="neu-subtitle mb-6">新任務先進來，思考後再分類</p>
+                    <div id="uncategorized-dropzone" class="space-y-3 p-6 rounded-2xl" style="background: var(--bg-light);">
+                        <div class="task-card-neu">
+                            <div class="flex justify-between items-start gap-3">
+                                <div>
+                                    <p class="font-semibold" style="color: var(--text-primary);">完成年度計畫審視</p>
+                                    <p class="text-sm neu-subtitle mt-1">建立於 15 分鐘前</p>
+                                </div>
+                                <button class="btn-neu" style="background: #4CAF50; color: white; padding: 6px 12px; font-size: 0.875rem;">✓ 完成</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4 Quadrants -->
+                <div class="grid gap-6 lg:grid-cols-2">
+                    <!-- Q1 -->
+                    <div class="quadrant-neu quad-warm">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">🔥 重要且緊急</h3>
+                        <p class="neu-subtitle text-sm mb-4">立即處理，避免風險</p>
+                        <div class="space-y-2">
+                            <div class="task-card-neu">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">修復關鍵系統漏洞</p>
+                                        <p class="text-xs neu-subtitle mt-1">更新於 10 分鐘前</p>
+                                    </div>
+                                    <button class="btn-neu" style="padding: 4px 8px; font-size: 0.75rem; background: #E94B3C; color: white;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q2 -->
+                    <div class="quadrant-neu quad-teal">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--accent);">✨ 重要不緊急</h3>
+                        <p class="neu-subtitle text-sm mb-4">安排專注時間穩定推進</p>
+                        <div class="space-y-2">
+                            <div class="task-card-neu">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">設計新產品頁面</p>
+                                        <p class="text-xs neu-subtitle mt-1">建立於 1 小時前</p>
+                                    </div>
+                                    <button class="btn-neu" style="padding: 4px 8px; font-size: 0.75rem; background: var(--accent); color: white;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q3 -->
+                    <div class="quadrant-neu quad-mint">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--text-primary);">⏰ 緊急不重要</h3>
+                        <p class="neu-subtitle text-sm mb-4">考慮委派或設定提醒</p>
+                        <div class="space-y-2">
+                            <div class="task-card-neu">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">回覆日常郵件</p>
+                                        <p class="text-xs neu-subtitle mt-1">更新於 45 分鐘前</p>
+                                    </div>
+                                    <button class="btn-neu" style="padding: 4px 8px; font-size: 0.75rem; background: #FFA502; color: white;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Q4 -->
+                    <div class="quadrant-neu quad-cool">
+                        <h3 class="text-xl font-bold mb-2" style="color: var(--text-secondary);">🎯 不緊急不重要</h3>
+                        <p class="neu-subtitle text-sm mb-4">有時間再做，或直接刪除</p>
+                        <div class="space-y-2">
+                            <div class="task-card-neu">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <p class="font-semibold" style="color: var(--text-primary);">看技術文章</p>
+                                        <p class="text-xs neu-subtitle mt-1">建立於 3 小時前</p>
+                                    </div>
+                                    <button class="btn-neu" style="padding: 4px 8px; font-size: 0.75rem;">AI 拆</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weekly Stats -->
+                <div class="neu-element p-8 bg-white">
+                    <h2 class="text-2xl font-bold mb-8" style="color: var(--text-primary);">📊 本週動能</h2>
+                    <div class="flex flex-col gap-8 sm:flex-row sm:items-center">
+                        <!-- Progress Ring -->
+                        <div class="relative flex items-center justify-center">
+                            <svg width="140" height="140" viewBox="0 0 140 140" class="progress-neu">
+                                <defs>
+                                    <linearGradient id="gradRing" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" style="stop-color:var(--accent);stop-opacity:1" />
+                                        <stop offset="100%" style="stop-color:var(--accent-light);stop-opacity:1" />
+                                    </linearGradient>
+                                </defs>
+                                <circle cx="70" cy="70" r="55" stroke="var(--bg-light)" stroke-width="12" fill="none"/>
+                                <circle cx="70" cy="70" r="55" stroke="url(#gradRing)" stroke-width="12" fill="none" stroke-dasharray="138.23" stroke-dashoffset="34.56" stroke-linecap="round"/>
+                            </svg>
+                            <div class="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
+                                <span class="text-3xl font-bold text-emboss" style="color: var(--accent);">75%</span>
+                                <span class="text-sm neu-subtitle">完成率</span>
+                            </div>
+                        </div>
+
+                        <!-- Stats -->
+                        <div class="flex-1 space-y-4">
+                            <div class="neu-element p-6 bg-white">
+                                <p class="neu-subtitle text-sm mb-2">本週完成任務</p>
+                                <p class="text-3xl font-bold" style="color: var(--accent);">12 項</p>
+                            </div>
+                            <div class="neu-element p-6 bg-white">
+                                <p class="neu-subtitle text-sm mb-2">平均存活日</p>
+                                <p class="text-3xl font-bold" style="color: var(--text-primary);">3.2 天</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="bg-white mt-12 py-6 shadow-lg">
+            <div class="mx-auto max-w-6xl px-6 text-center">
+                <p class="font-semibold" style="color: var(--text-primary);">Atomic Task Matrix · Neumorphism Design © 2025</p>
+                <p class="text-sm neu-subtitle">柔和設計 × 高效執行</p>
+            </div>
+        </footer>
+    </div>
+
+    <script src="config.js" defer></script>
+</body>
+</html>
