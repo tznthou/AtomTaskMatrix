@@ -34,9 +34,17 @@
             --light: #FFF9E6;
         }
 
-        /* Memphis 背景漸層 */
+        /* 確保 HTML 和 Body 正確填滿視口 */
+        html {
+            height: 100%;
+        }
+
+        /* Memphis 背景漸層 - 固定在視口避免拖拽露底 */
         body {
+            min-height: 100vh;
             background: linear-gradient(135deg, #FFF9E6 0%, #FFE6F0 100%);
+            background-attachment: fixed;
+            background-repeat: no-repeat;
         }
 
         /* Memphis 旋轉系統 - 已禁用（改為水平放置） */
