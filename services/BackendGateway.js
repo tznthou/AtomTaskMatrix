@@ -74,7 +74,7 @@ window.BackendGateway = {
             console.error(`[BackendGateway] ${options.method} ${path} network error:`, fetchError.message);
             throw new Error(`Network error calling ${path}: ${fetchError.message}`);
         }
-    }
+    },
 
     async _parseResponse(response, parseJson = true) {
         if (!parseJson || response.status === 204) {
