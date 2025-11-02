@@ -2,7 +2,7 @@
  * Renderer - UI 渲染器
  *
  * 職責：負責所有 UI 元素的渲染和更新
- * 依賴：AppState, STATUS_LABELS, STATUS_ACCENTS, IconLibrary, Elements, Task, DragDropHandler, TaskManager
+ * 依賴：AppState, STATUS_LABELS, STATUS_ACCENTS, IconLibrary, Elements, Task, DragDropHandler, TaskManager, FeedbackToast
  *
  * @module ui/Renderer
  */
@@ -188,27 +188,9 @@ window.Renderer = {
     },
 
     showFeedback(message, type) {
-        if (!Elements.feedback) return;
-
-        Elements.feedback.textContent = message;
-        Elements.feedback.className = "mt-3 text-sm opacity-100 transition-opacity duration-200";
-
-        switch (type) {
-            case "success":
-                Elements.feedback.classList.add("text-brand-success");
-                break;
-            case "error":
-                Elements.feedback.classList.add("text-brand-danger");
-                break;
-            default:
-                Elements.feedback.classList.add("text-brand-accent");
-                break;
-        }
-
-        setTimeout(() => {
-            Elements.feedback.classList.remove("opacity-100");
-            Elements.feedback.classList.add("opacity-0");
-        }, 2200);
+        // ✅ 使用彈窗通知系統而非靜態文本
+        // 用戶無論在頁面哪個位置都能清楚看到反饋消息
+        FeedbackToast.show(message, type, 2500);
     },
 
     updateConnection(status, message) {
