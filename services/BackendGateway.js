@@ -64,7 +64,7 @@ window.BackendGateway = {
                 console.error(`[BackendGateway] ${options.method} ${path} failed with status ${response.status}:`, text);
                 throw error;
             }
-            return this._parseResponse(response, parseJson);
+            return await this._parseResponse(response, parseJson);
         } catch (fetchError) {
             // ⚠️ 網路錯誤或 CORS 問題會在這裡被捕捉
             if (fetchError.message === "API_REQUEST_FAILED") {
