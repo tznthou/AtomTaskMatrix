@@ -6,7 +6,7 @@ tailwind.config = {
     theme: {
         // ⚠️ 覆蓋 Tailwind 預設顏色，無需修改 HTML
         colors: {
-            // 保持基本颜色
+            // 保持基本顏色
             white: '#FFFFFF',
             black: '#000000',
             transparent: 'transparent',
@@ -78,39 +78,39 @@ tailwind.config = {
             colors: {
                 base: {
                     bg: '#F5F5F5',       // 背景
-                    card: '#FFFFFF',     // 纯白卡片
+                    card: '#FFFFFF',     // 純白卡片
                     border: '#2D2D2D',   // Memphis 粗黑邊框
                     text: '#2D2D2D',     // 深灰文字
-                    subtle: '#757575'    // 中灰辅助文字
+                    subtle: '#757575'    // 中灰輔助文字
                 },
                 brand: {
-                    primary: '#FF6B9D',  // Memphis 粉红 (主色) - 活力、友善
-                    accent: '#FFA502',   // Memphis 橙色 (强调色) - 行动、热情
-                    secondary: '#757575', // 灰色 (辅色) - 中立、稳定
-                    success: '#26DE81',   // Memphis 绿 (成功)
-                    warning: '#FFA502',   // Memphis 橙 (警告)
-                    danger: '#FF6B6B'     // Memphis 红 (危险)
+                    primary: '#FF6B9D',  // Memphis 粉紅（主色）- 活力、友善
+                    accent: '#FFA502',   // Memphis 橙色（強調色）- 行動、熱情
+                    secondary: '#757575', // 灰色（輔色）- 中立、穩定
+                    success: '#26DE81',   // Memphis 綠（成功）
+                    warning: '#FFA502',   // Memphis 橙（警告）
+                    danger: '#FF6B6B'     // Memphis 紅（危險）
                 },
-                // 四象限專用色彩 (Memphis 飽和彩色方案)
+                // 四象限專用色彩（Memphis 飽和彩色方案）
                 q: {
                     1: {
                         light: '#FFE6E6',   // Memphis 淡紅背景
-                        main: '#FF6B6B',    // Memphis 紅 - 紧急重要
+                        main: '#FF6B6B',    // Memphis 紅 - 緊急重要
                         dark: '#C44569'     // Memphis 深紅
                     },
                     2: {
                         light: '#E6F9F0',   // Memphis 淡綠背景
-                        main: '#26DE81',    // Memphis 綠 - 重要不紧急
+                        main: '#26DE81',    // Memphis 綠 - 重要不緊急
                         dark: '#0FA060'     // Memphis 深綠
                     },
                     3: {
                         light: '#FFE6CC',   // Memphis 淡橙背景
-                        main: '#FFA502',    // Memphis 橙 - 紧急不重要
+                        main: '#FFA502',    // Memphis 橙 - 緊急不重要
                         dark: '#CC7700'     // Memphis 深橙
                     },
                     4: {
                         light: '#E6F2FF',   // Memphis 淡藍背景
-                        main: '#00D2FC',    // Memphis 藍 - 不紧急不重要
+                        main: '#00D2FC',    // Memphis 藍 - 不緊急不重要
                         dark: '#0099CC'     // Memphis 深藍
                     }
                 }
