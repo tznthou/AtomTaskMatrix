@@ -70,8 +70,25 @@ window.Renderer = {
 
         titleEl.textContent = task.title;
         // ✅ Heroicons: link 圖標表示子任務來源
+        // ✅ 安全修復：使用 createElement + textContent 防止 XSS
         if (task.parent_task_title) {
-            subEl.innerHTML = `<span class="inline-flex items-center gap-1">${IconLibrary.link('w-3 h-3')}來自 ${task.parent_task_title}</span>`;
+            // 清空現有內容
+            subEl.textContent = '';
+
+            // 建立 span 容器
+            const span = document.createElement('span');
+            span.className = 'inline-flex items-center gap-1';
+
+            // 建立 icon 容器並使用 innerHTML（IconLibrary 是受控的內部函數）
+            const iconContainer = document.createElement('span');
+            iconContainer.innerHTML = IconLibrary.link('w-3 h-3');
+            span.appendChild(iconContainer);
+
+            // ✅ 使用 textContent 添加文本（防止 XSS）
+            const textNode = document.createTextNode(`來自 ${task.parent_task_title}`);
+            span.appendChild(textNode);
+
+            subEl.appendChild(span);
         } else {
             subEl.textContent = "獨立任務";
         }
@@ -103,13 +120,31 @@ window.Renderer = {
             event.preventDefault();
             event.stopPropagation();
             // ✅ 顯示加載狀態 - 使用 spinner 圖標而非文本
+            // ✅ 安全修復：使用 createElement 取代 innerHTML
             breakdownButton.disabled = true;
-            breakdownButton.innerHTML = `${IconLibrary.spinner('w-3.5 h-3.5')}<span>分析中</span>`;
+            breakdownButton.textContent = '';  // 清空
+
+            const iconSpinner = document.createElement('span');
+            iconSpinner.innerHTML = IconLibrary.spinner('w-3.5 h-3.5');
+            breakdownButton.appendChild(iconSpinner);
+
+            const textSpan = document.createElement('span');
+            textSpan.textContent = '分析中';
+            breakdownButton.appendChild(textSpan);
+
             try {
                 await TaskManager.requestBreakdown(task.id);
             } finally {
                 breakdownButton.disabled = false;
-                breakdownButton.innerHTML = `${IconLibrary.sparkles('w-3.5 h-3.5')}<span>AI</span>`;
+                breakdownButton.textContent = '';  // 清空
+
+                const iconSparkles = document.createElement('span');
+                iconSparkles.innerHTML = IconLibrary.sparkles('w-3.5 h-3.5');
+                breakdownButton.appendChild(iconSparkles);
+
+                const textSpanAI = document.createElement('span');
+                textSpanAI.textContent = 'AI';
+                breakdownButton.appendChild(textSpanAI);
             }
         });
 
