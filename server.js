@@ -73,7 +73,8 @@ const server = http.createServer((req, res) => {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type',
-        'Cache-Control': 'public, max-age=3600'
+        // ⚠️ config.js 不應該快取，否則更新後用戶看不到
+        'Cache-Control': filePath.endsWith('config.js') ? 'no-cache, no-store, must-revalidate' : 'public, max-age=3600'
       });
       res.end(content);
     }
