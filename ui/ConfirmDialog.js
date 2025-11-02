@@ -99,36 +99,39 @@ window.ConfirmDialog = {
     }
 };
 
-// 添加动画样式
-const style = document.createElement("style");
-style.textContent = `
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
+// 添加动画样式（避免重複宣告）
+if (!document.getElementById("dialog-animations")) {
+    const dialogStyle = document.createElement("style");
+    dialogStyle.id = "dialog-animations";
+    dialogStyle.textContent = `
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
         }
-        to {
-            opacity: 1;
-        }
-    }
 
-    @keyframes fadeOut {
-        from {
-            opacity: 1;
+        @keyframes fadeOut {
+            from {
+                opacity: 1;
+            }
+            to {
+                opacity: 0;
+            }
         }
-        to {
-            opacity: 0;
-        }
-    }
 
-    @keyframes slideUp {
-        from {
-            transform: translateY(20px);
-            opacity: 0;
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
-        to {
-            transform: translateY(0);
-            opacity: 1;
-        }
-    }
-`;
-document.head.appendChild(style);
+    `;
+    document.head.appendChild(dialogStyle);
+}
