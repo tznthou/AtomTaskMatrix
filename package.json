@@ -1,0 +1,16 @@
+{
+  "name": "atomic-task-matrix",
+  "version": "1.0.0",
+  "description": "Atomic Task Matrix - Task Management with Eisenhower Matrix",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["task", "management", "eisenhower"],
+  "author": "AtomTask",
+  "license": "MIT",
+  "engines": {
+    "node": "18.x"
+  }
+}
