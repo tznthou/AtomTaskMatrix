@@ -102,9 +102,9 @@ window.Renderer = {
         breakdownButton.addEventListener("click", async event => {
             event.preventDefault();
             event.stopPropagation();
-            // ✅ 顯示加載狀態
+            // ✅ 顯示加載狀態 - 使用 spinner 圖標而非文本
             breakdownButton.disabled = true;
-            breakdownButton.textContent = "分析中...";
+            breakdownButton.innerHTML = `${IconLibrary.spinner('w-3.5 h-3.5')}<span>分析中</span>`;
             try {
                 await TaskManager.requestBreakdown(task.id);
             } finally {

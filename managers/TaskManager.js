@@ -95,7 +95,8 @@ window.TaskManager = {
             await BackendGateway.createTask({ title: trimmed });
             if (Elements.commandInput) Elements.commandInput.value = "";
             await this.reloadTasks();
-            Renderer.showFeedback("任務新增成功", "success");
+            // ✅ 改進成功反饋信息，讓用戶清楚知道新增成功
+            Renderer.showFeedback("新增任務成功", "success");
             this.refreshStats();
         } catch (error) {
             console.error("新增任務失敗:", error);
