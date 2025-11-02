@@ -102,7 +102,8 @@ function routeRequest(defaultMethod, e) {
       const taskId = path.split('/')[1];
       const result = TaskService.breakdown(taskId);
       payload = { success: true, ...result };
-    } else if (method === 'DELETE' && path.endsWith('/delete')) {
+    } else if ((method === 'DELETE' || method === 'POST') && path.endsWith('/delete')) {
+      // ⚠️ 支持 POST 是因為 DELETE 會觸發 CORS preflight（GAS 不支持 OPTIONS）
       const taskId = path.split('/')[1];
       payload = { success: true, result: TaskService.delete(taskId) };
     } else if (method === 'GET' && path === 'stats/weekly') {

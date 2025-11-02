@@ -269,8 +269,9 @@ const BackendGateway = {
     },
 
     async deleteTask(taskId) {
+        // ⚠️ 使用 POST 而非 DELETE，因為 DELETE 會觸發 CORS preflight（GAS 不支持 OPTIONS）
         const data = await this.request(`/tasks/${encodeURIComponent(taskId)}/delete`, {
-            method: "DELETE"
+            method: "POST"
         });
         return data?.result ?? data;
     },
