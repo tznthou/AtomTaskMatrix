@@ -56,7 +56,8 @@ window.Renderer = {
         node.dataset.taskId = task.id;
         node.dataset.status = task.status;
 
-        const titleEl = node.querySelector("p.font-semibold");
+        // ✅ Memphis 設計更新後改為 font-bold（原為 font-semibold）
+        const titleEl = node.querySelector("p.font-bold");
         const subEl = node.querySelector("p.text-xs");
         const statusLabelEl = node.querySelector(".status-label");
         const createdEl = node.querySelector(".created-at");
