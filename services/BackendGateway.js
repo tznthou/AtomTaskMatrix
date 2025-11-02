@@ -23,11 +23,6 @@ window.BackendGateway = {
         if (path) {
             url.searchParams.set("path", path.replace(/^\/+/, ""));
         }
-        // ✅ 在 URL 參數中加入 token
-        const token = Config.apiToken();
-        if (token) {
-            url.searchParams.set("token", token);
-        }
         // ✅ 為 DELETE 請求加入 CSRF token（因為 DELETE 通常沒有 body）
         if (AppState.csrfToken) {
             url.searchParams.set("csrf_token", AppState.csrfToken);

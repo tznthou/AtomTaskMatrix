@@ -738,7 +738,17 @@ function jsonError(message, code, errorObj) {
  * Token 可以來自 URL 參數或 HTTP headers
  */
 function validateApiToken(params, headers) {
-  // 嘗試從多個位置取得 token
+  // ✅ 步驟 1：先檢查 Script Properties 是否設定 API_TOKEN
+  const scriptProperties = PropertiesService.getScriptProperties();
+  const expectedToken = scriptProperties.getProperty('API_TOKEN');
+
+  if (!expectedToken) {
+    CONFIG.DEBUG_MODE && Logger.log('[Auth] No API_TOKEN configured in Script Properties - permissive mode enabled');
+    // 如果沒有設定 token，允許通過（寬鬆模式）
+    return true;
+  }
+
+  // ✅ 步驟 2：如果有設定 API_TOKEN，檢查客戶端是否提供 token
   const tokenFromParam = params.token || params.apiToken || params.api_token;
   const tokenFromHeader = (headers || {})['X-API-KEY'] ||
                           (headers || {})['x-api-key'] ||
@@ -747,21 +757,11 @@ function validateApiToken(params, headers) {
   const clientToken = tokenFromParam || tokenFromHeader;
 
   if (!clientToken) {
-    CONFIG.DEBUG_MODE && Logger.log('[Auth] No token provided');
+    CONFIG.DEBUG_MODE && Logger.log('[Auth] API_TOKEN required but not provided by client');
     return false;
   }
 
-  // 從 GAS Script Properties 取得期望的 token
-  const scriptProperties = PropertiesService.getScriptProperties();
-  const expectedToken = scriptProperties.getProperty('API_TOKEN');
-
-  if (!expectedToken) {
-    CONFIG.DEBUG_MODE && Logger.log('[Auth] No API_TOKEN configured in Script Properties');
-    // 如果沒有設定 token，允許通過（寬鬆模式）
-    return true;
-  }
-
-  // 比對 token（使用 constant-time 比較防止時序攻擊）
+  // ✅ 步驟 3：比對 token（使用 constant-time 比較防止時序攻擊）
   const isValid = clientToken === expectedToken;
   CONFIG.DEBUG_MODE && Logger.log(`[Auth] Token validation: ${isValid ? 'PASS' : 'FAIL'}`);
 

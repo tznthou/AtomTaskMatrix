@@ -22,9 +22,6 @@ window.Config = {
         }
         return cfg.API_BASE_URL.replace(/\/+$/, "");
     },
-    apiToken() {
-        return this.raw?.API_TOKEN ?? null;
-    },
     hasApi() {
         try {
             this.apiBaseUrl();
