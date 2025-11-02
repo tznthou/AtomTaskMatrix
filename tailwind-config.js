@@ -1,6 +1,6 @@
-// ✅ Tailwind CSS 配置 - Hybrid Design (Memphis 色彩 + Neumorphism 質感)
-// 活力色彩 + 柔和陰影 = 舒適但充滿活力
-// 参考: ux-ux-genis.md - Performance-Optimized Design System (Balanced Mode)
+// ✅ Tailwind CSS 配置 - Memphis Design (粗邊框 + 彩色偏移陰影 + 旋轉)
+// 大膽活力 × 有趣互動 = 充滿生命力的任務管理
+// 參考: mockup-memphis.html
 
 tailwind.config = {
     theme: {
@@ -77,9 +77,9 @@ tailwind.config = {
         extend: {
             colors: {
                 base: {
-                    bg: '#F5F5F5',       // Neumorphism 背景
+                    bg: '#F5F5F5',       // 背景
                     card: '#FFFFFF',     // 纯白卡片
-                    border: '#EEEEEE',   // 浅灰边框
+                    border: '#2D2D2D',   // Memphis 粗黑邊框
                     text: '#2D2D2D',     // 深灰文字
                     subtle: '#757575'    // 中灰辅助文字
                 },
@@ -91,37 +91,44 @@ tailwind.config = {
                     warning: '#FFA502',   // Memphis 橙 (警告)
                     danger: '#FF6B6B'     // Memphis 红 (危险)
                 },
-                // 四象限專用色彩 (Memphis 彩色方案)
+                // 四象限專用色彩 (Memphis 飽和彩色方案)
                 q: {
                     1: {
-                        light: '#FFF5F8',   // 淺粉背景
-                        main: '#FF6B9D',    // 粉紅 - 紧急重要
-                        dark: '#E64D8A'     // 深粉紅
+                        light: '#FFE6E6',   // Memphis 淡紅背景
+                        main: '#FF6B6B',    // Memphis 紅 - 紧急重要
+                        dark: '#C44569'     // Memphis 深紅
                     },
                     2: {
-                        light: '#F5FFF8',   // 淺綠背景
-                        main: '#26DE81',    // 綠 - 重要不紧急
-                        dark: '#1A9E5A'     // 深綠
+                        light: '#E6F9F0',   // Memphis 淡綠背景
+                        main: '#26DE81',    // Memphis 綠 - 重要不紧急
+                        dark: '#0FA060'     // Memphis 深綠
                     },
                     3: {
-                        light: '#FFFAF0',   // 淺橙背景
-                        main: '#FFA502',    // 橙 - 紧急不重要
-                        dark: '#E67E00'     // 深橙
+                        light: '#FFE6CC',   // Memphis 淡橙背景
+                        main: '#FFA502',    // Memphis 橙 - 紧急不重要
+                        dark: '#CC7700'     // Memphis 深橙
                     },
                     4: {
-                        light: '#F5FBFF',   // 淺藍背景
-                        main: '#00D2FC',    // 藍 - 不紧急不重要
-                        dark: '#0084B3'     // 深藍
+                        light: '#E6F2FF',   // Memphis 淡藍背景
+                        main: '#00D2FC',    // Memphis 藍 - 不紧急不重要
+                        dark: '#0099CC'     // Memphis 深藍
                     }
                 }
             },
             boxShadow: {
-                // Neumorphism 柔和陰影
-                card: '8px 8px 16px rgba(0, 0, 0, 0.12), -8px -8px 16px rgba(255, 255, 255, 0.8)',
-                elevation: '6px 6px 12px rgba(0, 0, 0, 0.12), -6px -6px 12px rgba(255, 255, 255, 0.8)'
+                // Memphis 彩色偏移陰影
+                'memphis-card': '8px 8px 0 rgba(255, 107, 157, 0.3), 12px 12px 0 rgba(255, 165, 2, 0.2)',
+                'memphis-task': '6px 6px 0 rgba(255, 107, 157, 0.2)',
+                'memphis-btn': '5px 5px 0 rgba(0, 0, 0, 0.2)',
+                'memphis-ring': '0 0 0 3px #2D2D2D'
             },
             borderRadius: {
                 'xl-lg': '1.25rem'
+            },
+            borderWidth: {
+                '3': '3px',
+                '4': '4px',
+                '5': '5px'
             }
         }
     }
