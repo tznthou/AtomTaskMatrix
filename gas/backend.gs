@@ -8,7 +8,9 @@
 const CONFIG = {
   SPREADSHEET_ID: 'YOUR_SPREADSHEET_ID', // ← 修改成自己的試算表 ID
   TASKS_SHEET_NAME: 'Tasks',
-  ALLOWED_ORIGIN: '*',
+  // ⚠️ GAS Web App 不支持自定義 CORS headers
+  // 預設行為：允許所有來源訪問（無法透過程式碼修改）
+  // 安全防護依賴：CSRF Token 機制（防止跨站請求偽造）
   DEFAULT_STATUS: 'uncategorized',
   // 使用 gemini-2.0-flash 避免 2.5 的相容性問題
   // 如果要改回 2.5，改成 'gemini-2.5-flash'
