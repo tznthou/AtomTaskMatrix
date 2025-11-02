@@ -42,6 +42,17 @@ window.BackendGateway = {
 
         if (body !== undefined) {
             // ✅ CSRF Token 防禦 - POST/PUT/DELETE 請求必須包含有效的 CSRF token
+            // 如果沒有 token，先從 /tasks 端點獲取一個
+            if (['POST', 'PUT', 'DELETE'].includes(options.method) && !AppState.csrfToken) {
+                try {
+                    await this.request("/tasks", { parseJson: false });
+                    // ✅ 現在 AppState.csrfToken 應該被設置了
+                } catch (error) {
+                    console.warn("[BackendGateway] Failed to fetch CSRF token:", error);
+                    // 繼續發送請求，讓後端返回明確的錯誤訊息
+                }
+            }
+
             const requestBody = body;
             if (['POST', 'PUT', 'DELETE'].includes(options.method) && AppState.csrfToken) {
                 requestBody.csrf_token = AppState.csrfToken;

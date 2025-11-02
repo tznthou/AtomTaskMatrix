@@ -11,18 +11,33 @@
 
 window.TaskManager = {
     async initialize() {
-        try {
-            await this.reloadTasks(true);
-        } catch (error) {
-            // ⚠️ 即使初始化失敗，仍需啟動 ConnectionMonitor 以便進行定期重試
-            console.error("初始同步失敗，但將啟動連線監控以進行恢復:", error);
+        if (!Config.hasApi()) {
+            Renderer.updateConnection("disconnected", "請於 config.js 設定 API_BASE_URL");
+            AppState.tasks = [];
+            Renderer.renderAll();
+            return;
         }
 
-        if (Config.hasApi()) {
-            this.refreshStats();
-            // ✅ 無論初始化是否成功，都啟動連線監控
-            ConnectionMonitor.start();
+        // ✅ 必須首先獲取 CSRF Token（即使任務加載失敗也必須成功）
+        try {
+            Renderer.updateConnection("connecting", "同步中...");
+            const remoteTasks = await BackendGateway.loadTasks();
+            AppState.tasks = remoteTasks;
+            Renderer.renderAll();
+            Renderer.updateConnection("connected", "已連線後端服務");
+            Renderer.updateLastSync(Date.now());
+        } catch (error) {
+            // ⚠️ 任務加載失敗，但 CSRF token 應該已在 BackendGateway.loadTasks() 中被獲取
+            // 所以即使失敗，用戶仍能進行 POST 操作（建立任務等）
+            console.error("初始同步失敗，但 CSRF token 應已獲取:", error);
+            AppState.tasks = [];
+            Renderer.renderAll();
+            Renderer.updateConnection("disconnected", "無法同步任務，但將嘗試重新連線");
         }
+
+        // ✅ 無論如何都啟動連線監控和重新整理統計
+        this.refreshStats();
+        ConnectionMonitor.start();
     },
 
     async reloadTasks(showLoader = false) {
