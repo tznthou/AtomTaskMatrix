@@ -153,7 +153,8 @@ window.BackendGateway = {
 
     async completeTask(taskId) {
         const data = await this.request(`/tasks/${encodeURIComponent(taskId)}/complete`, {
-            method: "POST"
+            method: "POST",
+            body: {}  // ✅ 需要空 body 才能正確添加 CSRF token
         });
         const taskData = data?.task ?? data;
         return taskData ? Task.fromApiPayload(taskData) : null;
@@ -162,7 +163,8 @@ window.BackendGateway = {
     async deleteTask(taskId) {
         // ⚠️ 使用 POST 而非 DELETE，因為 DELETE 會觸發 CORS preflight（GAS 不支持 OPTIONS）
         const data = await this.request(`/tasks/${encodeURIComponent(taskId)}/delete`, {
-            method: "POST"
+            method: "POST",
+            body: {}  // ✅ 需要空 body 才能正確添加 CSRF token
         });
         return data?.result ?? data;
     },
@@ -185,7 +187,8 @@ window.BackendGateway = {
 
     async breakdownTask(taskId) {
         return this.request(`/tasks/${encodeURIComponent(taskId)}/breakdown`, {
-            method: "POST"
+            method: "POST",
+            body: {}  // ✅ 需要空 body 才能正確添加 CSRF token
         });
     },
 
