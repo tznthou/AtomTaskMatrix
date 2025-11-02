@@ -44,16 +44,11 @@ function doDelete(e) {
 }
 
 function doOptions(e) {
-  // ✅ 處理 CORS preflight 請求 - 必須明確返回 CORS headers
-  const output = ContentService.createTextOutput();
+  // ⚠️ Google Apps Script 不支持 OPTIONS 請求和自定義 headers
+  // 使用 Content-Type: text/plain 讓請求變成簡單請求（simple request）
+  // 這樣瀏覽器會跳過 preflight 檢查
+  const output = ContentService.createTextOutput('{}');
   output.setMimeType(ContentService.MimeType.TEXT);
-
-  // ✅ 添加 CORS headers 以允許跨域請求（DELETE/PUT/OPTIONS）
-  output.addHeader('Access-Control-Allow-Origin', '*');
-  output.addHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization, X-CSRF-Token');
-  output.addHeader('Access-Control-Max-Age', '86400');
-
   return output;
 }
 
@@ -701,12 +696,7 @@ function parseFormEncoded(raw) {
 function jsonResponse(data) {
   const output = ContentService.createTextOutput(JSON.stringify(data));
   output.setMimeType(ContentService.MimeType.TEXT);
-
-  // ✅ 添加 CORS headers
-  output.addHeader('Access-Control-Allow-Origin', '*');
-  output.addHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization');
-
+  // ⚠️ GAS 不支持 addHeader()，使用 text/plain 避免 CORS preflight
   return output;
 }
 
@@ -737,12 +727,7 @@ function jsonError(message, code, errorObj) {
 
   const output = ContentService.createTextOutput(JSON.stringify(payload));
   output.setMimeType(ContentService.MimeType.TEXT);
-
-  // ✅ 添加 CORS headers
-  output.addHeader('Access-Control-Allow-Origin', '*');
-  output.addHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization');
-
+  // ⚠️ GAS 不支持 addHeader()，使用 text/plain 避免 CORS preflight
   return output;
 }
 

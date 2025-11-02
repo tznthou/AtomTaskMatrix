@@ -171,7 +171,8 @@ const BackendGateway = {
 
     async request(path, { method = "GET", body, parseJson = true } = {}) {
         const url = this.resolvePath(path);
-        const options = { method: (method ?? "GET").toUpperCase(), headers: this.headers() };
+        // ⚠️ 不使用自定義 headers 避免觸發 CORS preflight
+        const options = { method: (method ?? "GET").toUpperCase() };
 
         if (body !== undefined) {
             // ✅ CSRF Token 防禦 - POST/PUT/DELETE 請求必須包含有效的 CSRF token
@@ -183,7 +184,8 @@ const BackendGateway = {
             const form = new URLSearchParams();
             form.append("payload", JSON.stringify(requestBody));
             options.body = form.toString();
-            options.headers["Content-Type"] = "application/x-www-form-urlencoded";
+            // ✅ 使用 text/plain 避免 CORS preflight（GAS 不支持 OPTIONS）
+            options.headers = { "Content-Type": "text/plain;charset=UTF-8" };
         }
 
         const response = await fetch(url, options);
