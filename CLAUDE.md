@@ -10,13 +10,14 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
 ### Completed Features ✅
 - **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (1056 lines total)
-- **UI**: Brightstream theme, drag-and-drop, statistics panel, Heroicons SVG icons
+- **UI**: **Memphis Design** (粗邊框 + 彩色偏移陰影 + 旋轉元素), drag-and-drop, statistics panel, Heroicons SVG icons
 - **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
 - **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
 - **Sync**: Real-time sync without localStorage
 - **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model
 - **UX**: Direct AI breakdown button on task cards, time information display on cards
 - **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
+- **All Core Functionality**: ✅ 建立任務、拖放分類、AI 分析、刪除任務、完成任務
 
 ### Known Issues 🔴
 
@@ -76,7 +77,51 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
      - Time information (created/updated/completed) directly on task cards
    - Status: ✅ Deployed to production
 
-5. **Focus Panel Removal (RESOLVED 2025-11-02)**
+5. **Memphis Design Implementation (RESOLVED 2025-11-02)**
+   - **Motivation**: User requested bold design update: "我覺得應該連整個UX都要大修改...設計可以大膽一點"
+   - **Design Phase**: Created 3 mockups (Memphis, Neumorphism, Art Deco)
+   - **User Selection**: Final choice - Pure Memphis Design
+   - **Implementation**:
+     - Updated `tailwind-config.js` with Memphis color system and shadows
+     - Applied 150+ CSS class changes to `index.html` while preserving HTML structure
+     - Result: Thick black borders (4-5px), geometric elements, color-shifted shadows, rotated elements
+   - **Status**: ✅ Fully implemented and deployed to production
+
+6. **Memphis Design Production Deployment & Debugging (RESOLVED 2025-11-02)**
+   - **Initial Issue**: Frontend rendered successfully but connection indicator showed 🔴 "尚未連線"
+   - **Root Causes Found & Fixed**:
+     1. **Renderer.js DOM Selector Mismatch**
+        - Problem: HTML template class changed from `font-semibold` to `font-bold`, but selector wasn't updated
+        - Fix: Updated selector in `Renderer.js:60` to match HTML template
+        - Impact: Task cards couldn't render, blocking all initialization
+
+     2. **Script Loading Race Condition**
+        - Problem: Using `defer` attribute on scripts caused non-deterministic loading order
+        - Fix: Removed `defer` to ensure sync sequential loading
+        - Impact: BackendGateway loaded after TaskManager, causing "BackendGateway is not defined"
+
+     3. **BackendGateway.js Syntax Error**
+        - Problem: Missing comma between `request()` and `_parseResponse()` methods
+        - Fix: Added comma separator in object literal (line 77)
+        - Impact: Module parsing failed completely
+
+     4. **CSRF Token Missing on POST Requests**
+        - Problem: Async initialization meant CSRF token wasn't acquired before user action
+        - Fix: Added auto-fetch mechanism - POST requests without token automatically fetch one first
+        - Impact: All POST operations (create, update, delete, breakdown) now work reliably
+
+   - **Diagnostic Tools Created**:
+     - `test-fetch.html` - Direct API endpoint testing
+     - `DEBUGGING.md` - Comprehensive troubleshooting guide
+
+   - **Improvements Made**:
+     - Enhanced error diagnostics in BackendGateway with detailed console logging
+     - Improved ConnectionMonitor startup to handle initialization failures gracefully
+     - Added fallback CSRF token acquisition mechanism
+
+   - **Final Status**: ✅ All functionality working - 建立任務、拖放、AI分析、刪除、完成
+
+7. **Focus Panel Removal (RESOLVED 2025-11-02)**
    - **Motivation**: Focus panel added unnecessary complexity - users preferred seeing all info directly on task cards
    - **Changes**:
      - Removed entire Focus Panel right-side drawer
