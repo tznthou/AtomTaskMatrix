@@ -9,76 +9,73 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 ## ⚠️ Current Project Status (2025-11-02)
 
 ### Completed Features ✅
-- Frontend with Brightstream theme, drag-and-drop, Focus Drawer, statistics panel
-- GAS backend with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
-- Google Sheets CRUD operations (create, read, update, complete tasks)
-- Real-time sync without localStorage
-- **✅ Gemini AI Task Breakdown** - FIXED! Using `gemini-2.0-flash` model
+- **Frontend Architecture**: Modularized into 12 files with 5-layer architecture
+- **UI**: Brightstream theme, drag-and-drop, Focus Drawer, statistics panel, Heroicons SVG icons
+- **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
+- **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
+- **Sync**: Real-time sync without localStorage
+- **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model
+- **UX**: Direct AI breakdown button on task cards + Shift+A keyboard shortcut
+- **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
 
 ### Known Issues 🔴
 
-1. **⏳ BLOCKING: CORS Headers Not Yet Deployed (2025-11-02)**
-   - **Status**: CRITICAL - DELETE functionality blocked until deployed
-   - **Root Cause**: Browser CORS preflight policy requires proper headers on OPTIONS/DELETE responses
-   - **Error Message**: `Refused to execute inline script... Response to preflight request doesn't pass access control check: No 'Access-Control-Allow-Origin' header`
-   - **What Was Fixed in Code**:
-     - ✅ Added `doDelete(e)` function (line 40-42 in backend.gs)
-     - ✅ Added CORS headers to `doOptions()` (lines 50-53)
-     - ✅ Added CORS headers to `jsonResponse()` (lines 611-613)
-     - ✅ Added CORS headers to `jsonError()` (lines 648-650)
-   - **What Still Needs to Happen**:
-     - ❌ Local file `gas/backend.gs` has been updated BUT NOT deployed to Google Apps Script
-     - ❌ GAS still running old version without CORS headers
-     - ❌ config.js has new GAS URL, but backend code mismatch causes sync failure
-   - **Next Step (MUST DO TOMORROW)**:
-     1. Copy entire updated `gas/backend.gs` content
-     2. Paste into Google Apps Script editor
-     3. Deploy as new Web App version
-     4. Copy new URL to `config.js`
-   - **Related Files Modified**:
-     - `gas/backend.gs` - Added CORS headers, doDelete function, proper MIME types
-     - `main.js` - CSRF token routing for DELETE (line 166-168)
-     - `index.html` - CSP policy updated for inline scripts (line 9)
-
-2. **URL Deployment Sync**
-   - Each GAS redeployment generates new `/exec` URL
-   - Must manually update `config.js` after deployment
-
-3. **Gemini Prompt Quality (TODO)**
-   - Current prompt in `GeminiService.generateSubtasks()` (line 345-349) may need refinement
+1. **Gemini Prompt Quality (TODO)**
+   - Current prompt in `GeminiService.generateSubtasks()` (line 345-349 in backend.gs) may need refinement
    - Sometimes generates overly verbose or unclear subtask descriptions
    - **Location to fix**: Lines 345-349 in backend.gs
-   - **Note**: This is unrelated to 2025-11-02 security fixes; affects UX only
+   - **Priority**: Low - affects UX only, not functionality
 
 ### Resolved Issues ✅
 
-1. **Gemini AI Breakdown (RESOLVED 2025-11-02)**
-   - **Root Cause**: `gemini-2.5-flash` returns response with `thinking` field instead of `text`
-   - **Solution**: Switch to `gemini-2.0-flash` model (CONFIG.GEMINI_MODEL line 15)
-   - **Details**: Gemini 2.5 has different response structure for thinking models; older models use standard response format
-   - Status: ✅ Working - AI breakdown successfully generates subtasks
+1. **Main.js Modularization (RESOLVED 2025-11-02)**
+   - **Challenge**: 1107-line monolithic file difficult to maintain
+   - **Solution**: Refactored into 12 modules with 5-layer architecture
+   - **Benefits**: Clear separation of concerns, easier testing, better maintainability
+   - **Files Created**:
+     - Layer 1: `core/constants.js`, `core/icons.js`, `models/Task.js`
+     - Layer 2: `core/config.js`, `core/state.js`
+     - Layer 3: `services/BackendGateway.js`
+     - Layer 4: `handlers/DragDropHandler.js`, `ui/Renderer.js`, `managers/TaskManager.js`, `monitors/ConnectionMonitor.js`
+     - Layer 5: `app/events.js`, `app/bootstrap.js`
+   - Status: ✅ Deployed to production, all features working
 
-2. **Security & Functionality Fixes (2025-11-02)**
+2. **DELETE Functionality & CORS (RESOLVED 2025-11-02)**
    - **✅ CSRF Token Missing from DELETE Requests**
      - Issue: DELETE requests don't have body, so CSRF token wasn't being sent
-     - Fix: Modified `main.js` line 166-168 to add CSRF token to URL parameters
+     - Fix: Modified `services/BackendGateway.js` to add CSRF token to URL parameters
 
    - **✅ Missing doDelete Function**
      - Issue: GAS backend lacked `doDelete(e)` function for DELETE HTTP method
      - Fix: Added function at lines 40-42 in backend.gs
 
+   - **✅ CORS Headers**
+     - Issue: Browser blocks DELETE/OPTIONS due to missing CORS headers
+     - Fix: Added CORS headers to `doOptions()`, `jsonResponse()`, `jsonError()` in backend.gs
+     - Status: ✅ Deployed to GAS, DELETE functionality working in production
+
    - **✅ ContentService MIME Type Incompatibility**
      - Issue: `ContentService.MimeType.JSON` not supported in GAS
-     - Fix: Changed to `ContentService.MimeType.TEXT`, updated frontend JSON parsing (main.js lines 207-215)
+     - Fix: Changed to `ContentService.MimeType.TEXT`, updated frontend JSON parsing
 
    - **✅ CSP Violation for Inline Scripts**
      - Issue: "Refused to execute inline script" error after GAS deployment
      - Fix: Updated CSP policy in index.html line 9 to include `'unsafe-inline'`
 
-   - **✅ CORS Headers in Code (pending deployment)**
-     - Issue: Browser blocks DELETE/OPTIONS due to missing CORS headers
-     - Fix: Added CORS headers to `doOptions()`, `jsonResponse()`, `jsonError()` in backend.gs
-     - Status: Code is correct but NOT YET DEPLOYED to Google Apps Script
+3. **Gemini AI Breakdown (RESOLVED 2025-11-02)**
+   - **Root Cause**: `gemini-2.5-flash` returns response with `thinking` field instead of `text`
+   - **Solution**: Switch to `gemini-2.0-flash` model (CONFIG.GEMINI_MODEL line 15)
+   - **Details**: Gemini 2.5 has different response structure for thinking models; older models use standard response format
+   - Status: ✅ Working - AI breakdown successfully generates subtasks
+
+4. **UX Improvement: AI Breakdown Access (RESOLVED 2025-11-02)**
+   - **Issue**: Required clicking "Focus" before accessing AI breakdown (3 steps total)
+   - **Solution**: Added direct AI button on task cards + Shift+A keyboard shortcut (1-2 steps)
+   - **Implementation**:
+     - Task card AI button with heroicons sparkles icon
+     - Global Shift+A shortcut with input field guards
+     - Auto-select first subtask after breakdown completes
+   - Status: ✅ Deployed to production
 
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
@@ -88,11 +85,45 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 ## Core Architecture
 
 ### Tech Stack
-- **Frontend**: Vanilla JavaScript (ES6+), single-page application in `index.html`
+- **Frontend**: Vanilla JavaScript (ES6+), modularized into 12 files with 5-layer architecture
 - **Styling**: Tailwind CSS 4.0 via CDN
+- **Icons**: Heroicons (inline SVG)
 - **Backend**: Google Apps Script (`gas/backend.gs`) deployed as Web App
 - **Database**: Google Sheets (Tasks and Analytics sheets)
 - **AI Service**: Google Gemini API for task breakdown
+- **Deployment**: Zeabur (https://task-matrix.zeabur.app/)
+
+### Frontend Module Architecture
+
+**Layer 1: Foundation (No Dependencies)**
+- `core/constants.js` - Status labels and color accents (16 lines)
+- `core/icons.js` - Heroicons SVG library (55 lines)
+- `models/Task.js` - Task data model class (62 lines)
+
+**Layer 2: Configuration & State**
+- `core/config.js` - API configuration management (24 lines)
+- `core/state.js` - Global app state and DOM element references (24 lines)
+
+**Layer 3: Services**
+- `services/BackendGateway.js` - Google Apps Script API communication (178 lines)
+
+**Layer 4: Business Logic**
+- `handlers/DragDropHandler.js` - Drag & drop interaction handling (45 lines)
+- `ui/Renderer.js` - UI rendering and updates (362 lines)
+- `managers/TaskManager.js` - Task management core logic (268 lines)
+- `monitors/ConnectionMonitor.js` - Connection status monitoring (45 lines)
+
+**Layer 5: Application**
+- `app/events.js` - Event binding (84 lines)
+- `app/bootstrap.js` - Application initialization and DOM setup (64 lines)
+
+**Key Design Principles**:
+- Single-direction dependency flow (lower layers never depend on higher layers)
+- No circular dependencies
+- Each module has clear responsibility
+- Global objects declared with `window.*` prefix for clarity
+- Elements initialized in bootstrap to avoid null references
+- No build process required - direct script loading
 
 ### Data Flow
 1. Frontend makes API calls to Google Apps Script Web App endpoint
@@ -130,9 +161,11 @@ cp config.example.js config.js
 8. **Important**: Every redeployment generates a new URL - always update `config.js`
 
 ### Current Production Setup
-- Spreadsheet ID: `YOUR_SPREADSHEET_ID`
-- Web App URL: `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
-- Gemini Model: `gemini-2.5-flash` (confirmed available via API, has `thinking` attribute)
+- **Frontend**: https://task-matrix.zeabur.app/
+- **Spreadsheet ID**: `YOUR_SPREADSHEET_ID`
+- **GAS Web App URL**: `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
+- **Gemini Model**: `gemini-2.0-flash` (stable, recommended)
+- **Last Updated**: 2025-11-02
 
 ## API Endpoints
 
@@ -172,78 +205,35 @@ When a task is broken down:
 - Connection status indicator shows sync state
 - Optimistic UI updates with rollback on failure
 
-## CORS Issue Deep Dive (2025-11-02)
+## Module Loading Order
 
-### Why CORS is Critical for DELETE
+The application follows a strict loading order defined in [index.html](index.html:367-387):
 
-When browser makes DELETE request, it first sends OPTIONS (preflight) request to check if server allows it:
+```html
+<!-- Layer 1: Foundation -->
+<script src="core/constants.js" defer></script>
+<script src="core/icons.js" defer></script>
+<script src="models/Task.js" defer></script>
 
-```
-Client → OPTIONS /tasks/{id}/delete → Server
-Server must respond with:
-  Access-Control-Allow-Origin: *
-  Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS
-  Access-Control-Allow-Headers: Content-Type, ...
-```
+<!-- Layer 2: Configuration & State -->
+<script src="core/config.js" defer></script>
+<script src="core/state.js" defer></script>
 
-If server doesn't return these headers → Browser BLOCKS DELETE automatically.
+<!-- Layer 3: Services -->
+<script src="services/BackendGateway.js" defer></script>
 
-### CORS Headers Added to backend.gs
+<!-- Layer 4: Business Logic -->
+<script src="handlers/DragDropHandler.js" defer></script>
+<script src="ui/Renderer.js" defer></script>
+<script src="managers/TaskManager.js" defer></script>
+<script src="monitors/ConnectionMonitor.js" defer></script>
 
-**1. `doOptions()` function (lines 44-56)** - Handles preflight requests
-```javascript
-function doOptions(e) {
-  const output = ContentService.createTextOutput();
-  output.setMimeType(ContentService.MimeType.TEXT);
-
-  output.addHeader('Access-Control-Allow-Origin', '*');
-  output.addHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization');
-  output.addHeader('Access-Control-Max-Age', '86400');
-
-  return output;
-}
+<!-- Layer 5: Application -->
+<script src="app/events.js" defer></script>
+<script src="app/bootstrap.js" defer></script>
 ```
 
-**2. `jsonResponse()` function (lines 605-616)** - All successful responses include CORS headers
-```javascript
-output.addHeader('Access-Control-Allow-Origin', '*');
-output.addHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization');
-```
-
-**3. `jsonError()` function (lines 643-653)** - Error responses also include CORS headers
-
-### Why Frontend Changes Were Also Needed
-
-Frontend in `main.js` lines 166-168:
-```javascript
-// ✅ 為 DELETE 請求加入 CSRF token（因為 DELETE 通常沒有 body）
-if (AppState.csrfToken) {
-    url.searchParams.set("csrf_token", AppState.csrfToken);
-}
-```
-
-DELETE requests have no body, so CSRF token must go in URL parameters instead of request body.
-
-### Current Blocker Explained
-
-- ✅ Code is complete and correct in local `gas/backend.gs`
-- ❌ Google Apps Script server still running OLD version without CORS headers
-- ❌ Until you deploy new backend.gs → DELETE will continue to fail
-- ❌ Browser console will show: "CORS policy: Response to preflight request doesn't pass access control check"
-
-### Tomorrow's Deployment Steps
-
-1. Open Google Apps Script editor for the deployed project
-2. Select all in the script editor (Ctrl+A)
-3. Delete all content
-4. Copy entire content from local `/Users/tznthou/Documents/Practice/AtomTask/gas/backend.gs`
-5. Paste into GAS editor
-6. Click Deploy → New deployment → Web App
-7. Copy the NEW URL
-8. Update `config.js` with new URL
-9. Test DELETE functionality - should work now
+**Critical**: This order ensures each module's dependencies are loaded before the module itself.
 
 ## Common Tasks
 
@@ -269,15 +259,23 @@ Since Gemini 2.5 models have `thinking` attribute, response structure may differ
    ```
 
 ### Adding New Task Fields
-1. Update `Task` class constructor in `main.js`
+1. Update `Task` class constructor in `models/Task.js`
 2. Add field to GAS `Task` class in `backend.gs`
-3. Update `TaskRepository` methods for Sheets columns
-4. Add UI elements if needed
+3. Update `TaskRepository` methods for Sheets columns in `backend.gs`
+4. Add UI rendering logic in `ui/Renderer.js` if needed
 
 ### Modifying Task Status Types
-1. Update `STATUS_VALUES` in both `main.js` and `backend.gs`
-2. Update `STATUS_LABELS` and `STATUS_ACCENTS` for UI
-3. Add corresponding HTML dropzone if needed
+1. Update `STATUS_VALUES` in `backend.gs`
+2. Update `STATUS_LABELS` and `STATUS_ACCENTS` in `core/constants.js`
+3. Add corresponding HTML dropzone in `index.html` if needed
+
+### Adding New Features
+When adding new features, follow the module architecture:
+- **New API endpoint**: Add to `services/BackendGateway.js`
+- **New UI component**: Add to `ui/Renderer.js`
+- **New business logic**: Add to `managers/TaskManager.js` or create new manager
+- **New interaction**: Add to `handlers/` directory
+- **New configuration**: Add to `core/config.js` or `core/constants.js`
 
 ### Debugging API Issues
 1. Check browser console for network errors
