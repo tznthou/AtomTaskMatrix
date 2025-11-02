@@ -361,6 +361,29 @@
     </template>
 
     <script src="config.js" defer></script>
-    <script src="main.js" defer></script>
+
+    <!-- ========== Atomic Task Matrix - 模組載入 ========== -->
+
+    <!-- Layer 1: 基礎層（無依賴） -->
+    <script src="core/constants.js" defer></script>
+    <script src="core/icons.js" defer></script>
+    <script src="models/Task.js" defer></script>
+
+    <!-- Layer 2: 配置與狀態層 -->
+    <script src="core/config.js" defer></script>
+    <script src="core/state.js" defer></script>
+
+    <!-- Layer 3: 服務層 -->
+    <script src="services/BackendGateway.js" defer></script>
+
+    <!-- Layer 4: 業務邏輯層 -->
+    <script src="handlers/DragDropHandler.js" defer></script>
+    <script src="ui/Renderer.js" defer></script>
+    <script src="managers/TaskManager.js" defer></script>
+    <script src="monitors/ConnectionMonitor.js" defer></script>
+
+    <!-- Layer 5: 應用層 -->
+    <script src="app/events.js" defer></script>
+    <script src="app/bootstrap.js" defer></script>
 </body>
 </html>
