@@ -9,13 +9,13 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 ## ⚠️ Current Project Status (2025-11-02)
 
 ### Completed Features ✅
-- **Frontend Architecture**: Modularized into 12 files with 5-layer architecture
-- **UI**: Brightstream theme, drag-and-drop, Focus Drawer, statistics panel, Heroicons SVG icons
+- **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (1056 lines total)
+- **UI**: Brightstream theme, drag-and-drop, statistics panel, Heroicons SVG icons
 - **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
 - **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
 - **Sync**: Real-time sync without localStorage
 - **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model
-- **UX**: Direct AI breakdown button on task cards + Shift+A keyboard shortcut
+- **UX**: Direct AI breakdown button on task cards, time information display on cards
 - **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
 
 ### Known Issues 🔴
@@ -70,12 +70,28 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
 4. **UX Improvement: AI Breakdown Access (RESOLVED 2025-11-02)**
    - **Issue**: Required clicking "Focus" before accessing AI breakdown (3 steps total)
-   - **Solution**: Added direct AI button on task cards + Shift+A keyboard shortcut (1-2 steps)
+   - **Solution**: Added direct AI button on task cards (1 step)
    - **Implementation**:
      - Task card AI button with heroicons sparkles icon
-     - Global Shift+A shortcut with input field guards
-     - Auto-select first subtask after breakdown completes
+     - Time information (created/updated/completed) directly on task cards
    - Status: ✅ Deployed to production
+
+5. **Focus Panel Removal (RESOLVED 2025-11-02)**
+   - **Motivation**: Focus panel added unnecessary complexity - users preferred seeing all info directly on task cards
+   - **Changes**:
+     - Removed entire Focus Panel right-side drawer
+     - Removed "專注" button from task cards
+     - Removed Shift+A keyboard shortcut (AI button now directly accessible)
+     - Removed Header/Footer keyboard shortcut hints
+     - Added time information display directly on task cards
+   - **Code Impact**: Reduced codebase by 264 lines (-20%)
+     - [ui/Renderer.js](ui/Renderer.js): 362 → 263 lines (-99 lines)
+     - [managers/TaskManager.js](managers/TaskManager.js): 268 → 219 lines (-49 lines)
+     - [app/events.js](app/events.js): 84 → 38 lines (-46 lines)
+     - [app/bootstrap.js](app/bootstrap.js): 64 → 52 lines (-12 lines)
+     - [core/state.js](core/state.js): Removed `selectedTaskId` state
+     - [index.html](index.html): Removed Focus Panel HTML and templates
+   - Status: ✅ Deployed to production, tested and working
 
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
@@ -96,26 +112,28 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 ### Frontend Module Architecture
 
 **Layer 1: Foundation (No Dependencies)**
-- `core/constants.js` - Status labels and color accents (16 lines)
-- `core/icons.js` - Heroicons SVG library (55 lines)
+- `core/constants.js` - Status labels and color accents (28 lines)
+- `core/icons.js` - Heroicons SVG library (63 lines)
 - `models/Task.js` - Task data model class (62 lines)
 
 **Layer 2: Configuration & State**
-- `core/config.js` - API configuration management (24 lines)
-- `core/state.js` - Global app state and DOM element references (24 lines)
+- `core/config.js` - API configuration management (36 lines)
+- `core/state.js` - Global app state and DOM element references (27 lines)
 
 **Layer 3: Services**
-- `services/BackendGateway.js` - Google Apps Script API communication (178 lines)
+- `services/BackendGateway.js` - Google Apps Script API communication (179 lines)
 
 **Layer 4: Business Logic**
 - `handlers/DragDropHandler.js` - Drag & drop interaction handling (45 lines)
-- `ui/Renderer.js` - UI rendering and updates (362 lines)
-- `managers/TaskManager.js` - Task management core logic (268 lines)
-- `monitors/ConnectionMonitor.js` - Connection status monitoring (45 lines)
+- `ui/Renderer.js` - UI rendering and updates (263 lines)
+- `managers/TaskManager.js` - Task management core logic (219 lines)
+- `monitors/ConnectionMonitor.js` - Connection status monitoring (44 lines)
 
 **Layer 5: Application**
-- `app/events.js` - Event binding (84 lines)
-- `app/bootstrap.js` - Application initialization and DOM setup (64 lines)
+- `app/events.js` - Event binding (38 lines)
+- `app/bootstrap.js` - Application initialization and DOM setup (52 lines)
+
+**Total**: 1056 lines (reduced from 1320 lines after Focus Panel removal)
 
 **Key Design Principles**:
 - Single-direction dependency flow (lower layers never depend on higher layers)
@@ -194,10 +212,12 @@ uncategorized → [urgent_important | not_urgent_important | urgent_not_importan
 
 ### AI Task Breakdown
 When a task is broken down:
-1. Original task is marked as completed
-2. 3-5 subtasks are created with `parent_task_id` reference
-3. Subtasks inherit the original task's quadrant
-4. Subtask titles include parent reference: "🔗 來自[parent] | [subtask]"
+1. User clicks the AI button directly on the task card
+2. Original task is marked as completed
+3. 3-5 subtasks are created with `parent_task_id` reference
+4. Subtasks inherit the original task's quadrant
+5. Subtask titles include parent reference with heroicons link icon: "🔗 來自[parent] | [subtask]"
+6. Subtasks are immediately visible on the board
 
 ### Real-time Sync
 - No localStorage - all data lives in Google Sheets
@@ -276,6 +296,13 @@ When adding new features, follow the module architecture:
 - **New business logic**: Add to `managers/TaskManager.js` or create new manager
 - **New interaction**: Add to `handlers/` directory
 - **New configuration**: Add to `core/config.js` or `core/constants.js`
+
+### Task Card Time Display
+Task cards show time information directly:
+- **Created time**: Displayed as relative time (e.g., "建立於 2 小時前")
+- **Updated time**: Displayed as relative time (e.g., "更新於 15 分鐘前")
+- **Completed time**: Only shown for completed tasks (e.g., "完成於 1 天前")
+- Time formatting handled by `Renderer.formatRelativeTime()` in [ui/Renderer.js](ui/Renderer.js:325-349)
 
 ### Debugging API Issues
 1. Check browser console for network errors
