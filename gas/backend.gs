@@ -51,7 +51,7 @@ function doOptions(e) {
   // ✅ 添加 CORS headers 以允許跨域請求（DELETE/PUT/OPTIONS）
   output.addHeader('Access-Control-Allow-Origin', '*');
   output.addHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-  output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization');
+  output.addHeader('Access-Control-Allow-Headers', 'Content-Type, X-API-KEY, Authorization, X-CSRF-Token');
   output.addHeader('Access-Control-Max-Age', '86400');
 
   return output;
@@ -699,9 +699,8 @@ function parseFormEncoded(raw) {
  * ✅ JSON 回應 + CORS headers
  */
 function jsonResponse(data) {
-  const output = ContentService
-    .createTextOutput(JSON.stringify(data))
-    .setMimeType(ContentService.MimeType.TEXT);
+  const output = ContentService.createTextOutput(JSON.stringify(data));
+  output.setMimeType(ContentService.MimeType.TEXT);
 
   // ✅ 添加 CORS headers
   output.addHeader('Access-Control-Allow-Origin', '*');
@@ -736,9 +735,8 @@ function jsonError(message, code, errorObj) {
     payload.debugDetails = errorObj.stack || String(errorObj);
   }
 
-  const output = ContentService
-    .createTextOutput(JSON.stringify(payload))
-    .setMimeType(ContentService.MimeType.TEXT);
+  const output = ContentService.createTextOutput(JSON.stringify(payload));
+  output.setMimeType(ContentService.MimeType.TEXT);
 
   // ✅ 添加 CORS headers
   output.addHeader('Access-Control-Allow-Origin', '*');
