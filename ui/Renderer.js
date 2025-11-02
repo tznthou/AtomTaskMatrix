@@ -99,20 +99,45 @@ window.Renderer = {
             breakdownButton.classList.remove("opacity-50", "cursor-not-allowed");
         }
 
-        breakdownButton.addEventListener("click", event => {
+        breakdownButton.addEventListener("click", async event => {
             event.preventDefault();
             event.stopPropagation();
-            TaskManager.requestBreakdown(task.id);
+            // ✅ 顯示加載狀態
+            breakdownButton.disabled = true;
+            breakdownButton.textContent = "分析中...";
+            try {
+                await TaskManager.requestBreakdown(task.id);
+            } finally {
+                breakdownButton.disabled = false;
+                breakdownButton.innerHTML = `${IconLibrary.sparkles('w-3.5 h-3.5')}<span>AI</span>`;
+            }
         });
 
-        completeButton.addEventListener("click", event => {
+        completeButton.addEventListener("click", async event => {
             event.preventDefault();
-            TaskManager.completeTask(task.id);
+            // ✅ 顯示確認對話框
+            const confirmed = await ConfirmDialog.show(
+                IconLibrary.check('w-6 h-6'),
+                "完成任務",
+                "確定要完成此任務嗎？"
+            );
+            if (confirmed) {
+                await TaskManager.completeTask(task.id);
+            }
         });
 
-        deleteButton.addEventListener("click", event => {
+        deleteButton.addEventListener("click", async event => {
             event.preventDefault();
-            TaskManager.deleteTask(task.id);
+            // ✅ 顯示危險操作確認對話框
+            const confirmed = await ConfirmDialog.show(
+                IconLibrary.trash('w-6 h-6'),
+                "刪除任務",
+                "確定要刪除此任務嗎？此操作無法復原。",
+                true  // isDangerous = true，按鈕會是紅色
+            );
+            if (confirmed) {
+                await TaskManager.deleteTask(task.id);
+            }
         });
 
         node.addEventListener("dragstart", event => DragDropHandler.onDragStart(event, task.id));

@@ -59,5 +59,35 @@ window.IconLibrary = {
         <svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
         </svg>
+    `,
+
+    /**
+     * Heroicons: trash (outline) - 刪除符號
+     * @param {string} className - Tailwind CSS 類名 (default: "w-5 h-5")
+     */
+    trash: (className = "w-5 h-5") => `
+        <svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+    `,
+
+    /**
+     * Heroicons: exclamation (outline) - 警告/確認符號
+     * @param {string} className - Tailwind CSS 類名 (default: "w-5 h-5")
+     */
+    exclamation: (className = "w-5 h-5") => `
+        <svg class="${className}" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0-6a4 4 0 100 8 4 4 0 000-8z" />
+        </svg>
+    `,
+
+    /**
+     * Heroicons: arrow-path (outline) - 加載中/旋轉符號（需要 CSS 動畫）
+     * @param {string} className - Tailwind CSS 類名 (default: "w-5 h-5")
+     */
+    spinner: (className = "w-5 h-5") => `
+        <svg class="${className} animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
     `
 };

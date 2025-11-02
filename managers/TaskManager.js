@@ -226,16 +226,17 @@ window.TaskManager = {
         const task = AppState.tasks.find(item => item.id === taskId);
         if (!task) return;
 
-        Renderer.showFeedback("AI 拆解中...", "info");
+        Renderer.showFeedback("AI 分析中，請稍候...", "info");
 
         try {
             await BackendGateway.breakdownTask(task.id);
             await this.reloadTasks();
-            Renderer.showFeedback("AI 拆解完成", "success");
+            // ✅ 改進反馈信息，讓用戶清楚知道已完成
+            Renderer.showFeedback("AI 分析完成，已生成子任務！", "success");
             this.refreshStats();
         } catch (error) {
             console.error("AI 拆解失敗:", error);
-            Renderer.showFeedback("AI 分析暫時無法使用,請稍後再試", "error");
+            Renderer.showFeedback("AI 分析暫時無法使用，請稍後再試", "error");
         }
     }
 };
