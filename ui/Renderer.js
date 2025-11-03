@@ -27,7 +27,15 @@ window.Renderer = {
         Object.entries(buckets).forEach(([status, container]) => {
             if (!container) return;
             container.innerHTML = "";
-            const tasks = AppState.tasks.filter(task => task.status === status);
+            // ✅ 任務排序：最新建立的在最上面（降序）
+            const tasks = AppState.tasks
+                .filter(task => task.status === status)
+                .sort((a, b) => {
+                    // 按建立時間降序：newest first
+                    const dateA = new Date(a.created_at);
+                    const dateB = new Date(b.created_at);
+                    return dateB - dateA;  // 降序：b - a
+                });
 
             if (Elements.quadrantBadges[status]) {
                 Elements.quadrantBadges[status].textContent = `${tasks.length} 項`;
