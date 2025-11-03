@@ -284,34 +284,15 @@ const StatsService = {
     const range = getWeekRange(now);
     const tasks = TaskRepository.listAll();
 
+    // ✅ 方案 A（極簡主義）：只計算 3 個核心指標
     const createdThisWeek = tasks.filter(task => withinRange(task.created_at, range));
     const completedThisWeek = tasks.filter(task => task.completed_at && withinRange(task.completed_at, range));
-
-    const totalCreated = createdThisWeek.length;
-    const totalCompleted = completedThisWeek.length;
-
-    let avgLifetimeDays = null;
-    if (totalCompleted > 0) {
-      const totalLifetimeMs = completedThisWeek.reduce((sum, task) => {
-        const created = new Date(task.created_at).getTime();
-        const completed = new Date(task.completed_at).getTime();
-        return sum + Math.max(0, completed - created);
-      }, 0);
-      avgLifetimeDays = Number((totalLifetimeMs / totalCompleted / (1000 * 60 * 60 * 24)).toFixed(1));
-    }
-
-    const completionRate = totalCreated > 0
-      ? Number(((totalCompleted / totalCreated) * 100).toFixed(2))
-      : 0;
+    const pendingTasks = tasks.filter(task => task.status !== 'completed');
 
     return {
-      week_start: range.start.toISOString().split('T')[0],
-      week_end: range.end.toISOString().split('T')[0],
-      total_created: totalCreated,
-      total_completed: totalCompleted,
-      completion_rate: completionRate,
-      avg_lifetime_days: avgLifetimeDays,
-      adoption_rate: null,
+      total_completed: completedThisWeek.length,   // 本週完成任務數
+      total_created: createdThisWeek.length,       // 本週建立任務數
+      total_pending: pendingTasks.length,          // 待完成任務數（全部）
       updated_at: new Date().toISOString()
     };
   }

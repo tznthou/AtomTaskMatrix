@@ -10,16 +10,17 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
 ### Completed Features ✅
 - **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (~1020 lines total after UI cleanup)
-- **UI Design**: **Memphis Design** (粗邊框 + 彩色偏移陰影 + 旋轉元素), drag-and-drop, HeroIcons SVG icons
+- **UI Design**: **Memphis Design** (粗邊框 + 彩色卡片), drag-and-drop, HeroIcons SVG icons
 - **Layout**: Optimized information hierarchy (quadrants-first), modal-based statistics, 2-column grid for uncategorized tasks
 - **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
 - **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
 - **Sync**: Real-time sync without localStorage
 - **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model with task intensity indicators (🌱⚡🚀)
+- **Statistics**: Minimalist design with 3 core metrics (本週完成、本週建立、待完成) - 極簡主義方案
 - **UX**: Direct AI breakdown button on task cards, time information display, on-demand statistics modal
 - **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
 - **All Core Functionality**: ✅ 建立任務、拖放分類、AI 分析、刪除任務、完成任務
-- **Security**: ✅ XSS 防護、CSRF Token、優化的 API 認證機制
+- **Security**: ✅ XSS 防護、CSRF Token、Prompt Injection 防護、LLM Output 驗證
 
 ### Security Status 🔒
 
@@ -455,6 +456,71 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
    - **Final Status**: ✅ Production deployment working, all features tested, Git workflow documented
 
+13. **Statistics Simplification - 極簡主義方案 (RESOLVED 2025-11-03)**
+   - **Motivation**: User expressed concern about statistical complexity: "我想增加新指標，但太多太複雜的指標對使用者來說會不會覺得厭煩，我覺得應該找到一個平衡點"
+   - **Decision Process**:
+     - Analyzed current statistics system (4 metrics with circular progress)
+     - Proposed 3 design philosophies:
+       - **Option A (極簡主義)**: Only 3 core metrics - minimal cognitive load
+       - Option B (保守改良): 4 metrics with corrected definitions
+       - Option C (數據派): Full data analysis approach
+     - User chose: **Option A** - "少即是多" (Less is More)
+
+   - **Backend Simplification** (gas/backend.gs):
+     - Modified `StatsService.weekly()` (lines 281-299)
+     - **Removed Metrics**:
+       - ❌ `week_start` / `week_end` (not needed for display)
+       - ❌ `completion_rate` (misleading definition -本週完成/本週建立)
+       - ❌ `avg_lifetime_days` (not intuitive, lacks actionable insight)
+       - ❌ `adoption_rate` (always null, undefined business logic)
+     - **Kept 3 Core Metrics**:
+       - ✅ `total_completed` (本週完成任務數) - Main metric showing weekly achievement
+       - ✅ `total_created` (本週建立任務數) - Weekly task creation activity
+       - ✅ `total_pending` (待完成任務數) - All pending tasks across all time
+     - Location: [gas/backend.gs](gas/backend.gs#L281-L299)
+
+   - **Frontend Memphis Design** (ui/Renderer.js):
+     - Modified `renderStats()` (lines 214-249)
+     - Replaced circular progress ring with card-based layout
+     - **Visual Hierarchy**:
+       - **Main Metric**: 本週完成任務 (large 6xl font, pink gradient card, border-4)
+       - **Secondary Metrics**: 2-column grid (本週建立 green, 待完成 amber)
+     - **Memphis Elements**: Thick borders (border-4), colorful backgrounds, no rotation (per user feedback)
+     - **Removed Complexity**: Progress ring, complex calculations display
+     - Location: [ui/Renderer.js](ui/Renderer.js#L214-L249)
+
+   - **User Feedback & Iteration**:
+     - Initial design included card rotation (`transform: rotate(±1deg)`)
+     - User tested and requested: "卡片取消輕微旋轉效果"
+     - Removed all `style="transform: rotate(...)"` attributes
+     - Final design: Clean Memphis style with thick borders and colors only
+
+   - **Design Philosophy Applied**:
+     - **Immediate Rewards**: Focus on completion count (Atomic Habits principle)
+     - **Action-Oriented**: Show what was accomplished, not analytical ratios
+     - **Minimal Cognitive Load**: 3 numbers instead of 4+ complex metrics
+     - **Visual Simplicity**: Large numbers, clear labels, no distractions
+
+   - **Files Modified**:
+     - [gas/backend.gs](gas/backend.gs#L281-L299) - Simplified statistics calculation
+     - [ui/Renderer.js](ui/Renderer.js#L214-L249) - Memphis design cards without rotation
+     - Removed HTML modal elements (old progress ring references)
+
+   - **Testing Results**:
+     - ✅ Backend deployed and returning correct 3-metric format
+     - ✅ Frontend displaying Memphis design cards correctly
+     - ✅ Data validation: 本週完成任務=5, 本週建立=8, 待完成=0
+     - ✅ Visual refinement: Rotation removed per user feedback
+     - ✅ No console errors, smooth modal interaction
+
+   - **Impact**:
+     - Reduced statistical complexity by 25% (4 metrics → 3 metrics)
+     - Improved user comprehension with clear, action-focused metrics
+     - Aligned with product philosophy: Atomic Habits + Minimal Friction
+     - Faster development cycle: Simpler logic = easier maintenance
+
+   - **Final Status**: ✅ Deployed to production, tested and working perfectly
+
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
 - To switch models: Edit CONFIG.GEMINI_MODEL in backend.gs line 15
@@ -547,6 +613,7 @@ cp config.example.js config.js
 - **Spreadsheet ID**: `YOUR_SPREADSHEET_ID`
 - **GAS Web App URL**: `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
 - **Gemini Model**: `gemini-2.0-flash` (stable, recommended)
+- **Statistics Design**: Minimalist 3-metric approach (極簡主義方案 A)
 - **Last Updated**: 2025-11-03
 - **Security Status**: 🟢 Very Low Risk (3/4 vulnerabilities fixed)
 

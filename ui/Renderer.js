@@ -212,39 +212,40 @@ window.Renderer = {
     },
 
     renderStats() {
+        // ✅ 方案 A（極簡主義）：只顯示 3 個核心指標
         const stats = AppState.weeklyStats;
-        this.updateProgressRing(stats?.completion_rate ?? null);
 
-        // Update Modal Statistics
-        if (Elements.statTotalCompletedModal) {
-            Elements.statTotalCompletedModal.textContent = stats?.total_completed ?? "--";
-        }
-        if (Elements.statAvgLifetimeModal) {
-            Elements.statAvgLifetimeModal.textContent = stats?.avg_lifetime_days != null
-                ? `${Number(stats.avg_lifetime_days).toFixed(1)} 天`
-                : "-- 天";
-        }
-        if (Elements.statAdoptionModal) {
-            Elements.statAdoptionModal.textContent = stats?.adoption_rate != null
-                ? `${Number(stats.adoption_rate).toFixed(0)}%`
-                : "--%";
-        }
-    },
+        // 動態替換模態框內容為 Memphis 設計風格
+        if (!Elements.statsModal) return;
 
-    updateProgressRing(value) {
-        if (!Elements.progressCircleModal || !Elements.progressValueModal) return;
-        const circle = Elements.progressCircleModal;
-        const circumference = 2 * Math.PI * 50;
+        const contentContainer = Elements.statsModal.querySelector('.mt-6');
+        if (!contentContainer) return;
 
-        if (typeof value === "number" && !Number.isNaN(value)) {
-            const normalized = Math.max(0, Math.min(100, value));
-            const offset = circumference - (normalized / 100) * circumference;
-            circle.style.strokeDashoffset = offset.toString();
-            Elements.progressValueModal.textContent = `${normalized.toFixed(0)}%`;
-        } else {
-            circle.style.strokeDashoffset = circumference.toString();
-            Elements.progressValueModal.textContent = "--%";
-        }
+        // ✅ Memphis Design: 大字體 + 粗邊框 + 彩色卡片（移除旋轉效果）
+        contentContainer.innerHTML = `
+            <div class="space-y-6">
+                <h3 class="text-lg font-bold text-center mb-6">本週動能</h3>
+
+                <!-- 主要指標：本週完成任務 -->
+                <div class="text-center p-8 bg-gradient-to-br from-pink-50 to-rose-50 rounded-2xl border-4 border-pink-500">
+                    <p class="text-sm text-gray-600 mb-2">本週完成任務</p>
+                    <p class="text-6xl font-black text-pink-600">${stats?.total_completed ?? 0}</p>
+                </div>
+
+                <!-- 次要指標：2列網格 -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-6 bg-emerald-50 rounded-xl border-4 border-emerald-500">
+                        <p class="text-xs text-gray-600 mb-1">本週建立</p>
+                        <p class="text-3xl font-bold text-emerald-700">${stats?.total_created ?? 0}</p>
+                    </div>
+
+                    <div class="text-center p-6 bg-amber-50 rounded-xl border-4 border-amber-500">
+                        <p class="text-xs text-gray-600 mb-1">待完成</p>
+                        <p class="text-3xl font-bold text-amber-700">${stats?.total_pending ?? 0}</p>
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     applyStatusAccent(element, status) {
