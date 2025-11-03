@@ -397,6 +397,64 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
    - **Final Status**: ✅ Deployed to production, tested and working perfectly
 
+12. **Zeabur Deployment Orange Light Issue & config.js Management (RESOLVED 2025-11-03)**
+   - **Motivation**: Production deployment on Zeabur stuck at orange light (connecting), while local development worked perfectly
+   - **Root Cause Analysis**:
+     - config.js was in .gitignore (for GitHub security)
+     - Zeabur VS Code Extension respects .gitignore rules
+     - Extension couldn't upload config.js → Frontend couldn't read API_BASE_URL → Orange light
+
+   - **Solution Implemented**:
+     1. **Removed config.js from .gitignore**
+        - Location: [.gitignore](.gitignore#L1-L2)
+        - Now only contains: node_modules, .claude/settings.local.json
+        - Impact: Zeabur extension can now upload config.js
+
+     2. **Cleaned Git History**
+        - Used `git filter-branch` to remove config.js from all 40+ commits
+        - Cleaned all branches (master, feature/task-intensity-security, feature/ui-redesign)
+        - Force pushed to GitHub to ensure complete removal
+        - Result: GitHub repository has no config.js in any commit history
+
+     3. **Documented Git Workflow**
+        - Added comprehensive "Git Workflow & Deployment Security" section to CLAUDE.md
+        - Location: [CLAUDE.md](CLAUDE.md#L414-L521)
+        - Includes: Safe commands ✅, Dangerous commands ❌, Recommended workflow, Recovery procedures
+
+   - **Security Considerations**:
+     - ✅ GAS Web App URL not truly sensitive (protected by CSRF Token at runtime)
+     - ✅ Git history completely cleaned before removing .gitignore rule
+     - ⚠️ Requires discipline: must use selective `git add <file>` instead of `git add .`
+     - 🚨 Emergency procedure documented if config.js accidentally committed
+
+   - **Deployment Strategy**:
+     - **GitHub** (public): config.js excluded via selective git add
+     - **Zeabur** (private): config.js included automatically by VS Code extension
+     - **Local Development**: config.js exists in working directory but not tracked
+
+   - **Testing Results**:
+     - ✅ Zeabur deployment successful with green light (connected)
+     - ✅ All core functionality working: 建立任務、拖放分類、AI 分析、刪除任務、完成任務
+     - ✅ Task sorting (newest first) working correctly
+     - ✅ Task intensity badges rendering properly
+
+   - **Files Modified**:
+     - [.gitignore](.gitignore) - Removed config.js line
+     - [CLAUDE.md](CLAUDE.md#L414-L521) - Added Git workflow documentation
+
+   - **Git Commits**:
+     - History cleanup: Multiple commits rewritten with `git filter-branch`
+     - Documentation: `d59338a` - "docs: 配置 Git 工作流程以支持 Zeabur 部署"
+     - Task sorting: `49a981e` - "feat: 任務排序優化 - 最新建立的顯示在最上面"
+
+   - **Key Learnings**:
+     - Zeabur VS Code Extension deployment differs from GitHub-based deployment
+     - .gitignore affects both git and deployment tools
+     - Sometimes security trade-offs are acceptable when primary protection (CSRF Token) is strong
+     - Comprehensive documentation prevents future mistakes
+
+   - **Final Status**: ✅ Production deployment working, all features tested, Git workflow documented
+
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
 - To switch models: Edit CONFIG.GEMINI_MODEL in backend.gs line 15
