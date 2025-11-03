@@ -492,6 +492,115 @@ cp config.example.js config.js
 - **Last Updated**: 2025-11-03
 - **Security Status**: 🟢 Very Low Risk (3/4 vulnerabilities fixed)
 
+## Git Workflow & Deployment Security
+
+### ⚠️ CRITICAL: config.js Git Management
+
+**Background**:
+- `config.js` is NOT in `.gitignore` (intentionally removed for Zeabur deployment)
+- This allows Zeabur VS Code Extension to upload it, solving the orange light issue
+- However, it requires careful Git operations to prevent accidental commits to GitHub
+
+**Security Strategy**:
+- ✅ **GitHub**: config.js history completely cleaned (using `git filter-branch`)
+- ✅ **Zeabur**: config.js included in deployment (Zeabur extension can upload it)
+- ⚠️ **Future Commits**: Must manually control what gets added to avoid re-uploading config.js
+
+### Safe Git Commands ✅
+
+```bash
+# ✅ SAFE: Add specific files only
+git add ui/Renderer.js
+git add managers/TaskManager.js
+git add core/constants.js
+
+# ✅ SAFE: Add files by pattern
+git add ui/*.js
+git add *.md
+
+# ✅ SAFE: Check what will be committed BEFORE adding
+git status
+git diff
+
+# ✅ SAFE: Commit with specific files
+git commit ui/Renderer.js -m "..."
+```
+
+### Dangerous Git Commands ❌
+
+```bash
+# ❌ DANGEROUS: Adds ALL modified files (including config.js)
+git add .
+git add -A
+git add --all
+
+# ❌ DANGEROUS: Commits all changes without review
+git commit -a
+git commit -am "..."
+```
+
+### Recommended Workflow
+
+1. **Before committing**:
+   ```bash
+   git status  # Review what files changed
+   git diff    # Review actual changes
+   ```
+
+2. **Add files selectively**:
+   ```bash
+   git add <specific-file-1> <specific-file-2>
+   # or
+   git add ui/*.js managers/*.js
+   ```
+
+3. **Verify staging area**:
+   ```bash
+   git status  # Ensure config.js is NOT staged
+   ```
+
+4. **Commit and push**:
+   ```bash
+   git commit -m "descriptive message"
+   git push origin master
+   ```
+
+### If config.js Accidentally Gets Committed
+
+If you accidentally commit config.js to GitHub:
+
+1. **Remove from latest commit** (if not pushed yet):
+   ```bash
+   git reset HEAD~ config.js
+   git commit --amend
+   ```
+
+2. **Remove from history** (if already pushed):
+   ```bash
+   # Nuclear option - rewrites history
+   git filter-branch --force --index-filter \
+     "git rm --cached --ignore-unmatch config.js" \
+     --prune-empty --tag-name-filter cat -- --all
+
+   git push origin --force --all
+   ```
+
+3. **Update GAS deployment** (generate new URL):
+   - Redeploy GAS as Web App (creates new URL)
+   - Update local config.js with new URL
+   - Redeploy to Zeabur
+
+### Why This Approach?
+
+**Alternative Considered**: Keep config.js in .gitignore
+- ❌ Problem: Zeabur VS Code Extension respects .gitignore → can't upload config.js → orange light
+
+**Current Approach**: Remove config.js from .gitignore
+- ✅ Zeabur can upload config.js → green light
+- ✅ GAS URL not truly sensitive (protected by CSRF Token)
+- ✅ Git history already cleaned
+- ⚠️ Requires discipline: always use selective `git add`
+
 ## API Endpoints
 
 All endpoints are routed through the single Google Apps Script Web App URL.
