@@ -50,12 +50,6 @@
             background-repeat: no-repeat;
         }
 
-        /* Memphis 旋轉系統 - 已禁用（改為水平放置） */
-        .memphis-rotate-left { transform: rotate(0deg); }
-        .memphis-rotate-right { transform: rotate(0deg); }
-        .memphis-rotate-slight-left { transform: rotate(0deg); }
-        .memphis-rotate-slight-right { transform: rotate(0deg); }
-
         /* Memphis 斜體文字 */
         .italic-bold {
             font-style: italic;
@@ -69,22 +63,7 @@
 
         /* Memphis 按鈕 hover 效果 */
         .memphis-btn-hover:hover {
-            transform: rotate(0deg) scale(1.05);
-        }
-
-        /* Memphis 幾何裝飾 */
-        .geometric-circle {
-            width: 80px;
-            height: 80px;
-            border-radius: 50%;
-            border: 3px solid #2D2D2D;
-        }
-
-        .geometric-square {
-            width: 60px;
-            height: 60px;
-            border: 3px solid #2D2D2D;
-            transform: rotate(45deg);
+            transform: scale(1.05);
         }
     </style>
 </head>
@@ -93,7 +72,7 @@
         <header class="border-b-[5px] border-b-dashed border-b-[#FFA502] bg-white">
             <div class="mx-auto flex w-full max-w-6xl flex-col gap-4 px-6 py-6 md:flex-row md:items-center md:justify-between">
                 <div class="flex items-center gap-4">
-                    <div class="inline-flex h-12 w-12 items-center justify-center rounded-[20px] border-4 border-[#2D2D2D] bg-white memphis-rotate-left">
+                    <div class="inline-flex h-12 w-12 items-center justify-center rounded-[20px] border-4 border-[#2D2D2D] bg-white">
                         <svg viewBox="0 0 40 40" class="w-8 h-8" xmlns="http://www.w3.org/2000/svg">
                             <!-- 四象限矩陣 Logo -->
                             <!-- Q1: 紅色 (重要且緊急) -->
@@ -126,7 +105,7 @@
                         <span>統計</span>
                     </button>
 
-                    <div class="flex items-center gap-3 rounded-[30px] border-4 border-[#2D2D2D] bg-white px-4 py-3 memphis-rotate-left">
+                    <div class="flex items-center gap-3 rounded-[30px] border-4 border-[#2D2D2D] bg-white px-4 py-3">
                         <span id="status-indicator" class="text-lg">🔴</span>
                         <div class="flex flex-col leading-tight">
                             <span id="status-text" class="text-sm text-brand-danger">尚未連線</span>
@@ -139,7 +118,7 @@
 
         <main class="flex-1">
             <section class="mx-auto w-full max-w-6xl space-y-6 px-6 py-8">
-                <div class="rounded-[30px] border-4 border-[#2D2D2D] bg-white p-6 memphis-rotate-right">
+                <div class="rounded-[30px] border-4 border-[#2D2D2D] bg-white p-6">
                     <form id="task-form" class="flex flex-col gap-4 lg:flex-row lg:items-center">
                         <div class="w-full lg:flex-1">
                             <label for="task-input" class="sr-only">建立新任務</label>
@@ -157,16 +136,10 @@
                         <div class="flex flex-wrap items-center gap-3">
                             <button
                                 type="submit"
-                                class="rounded-[20px] border-3 border-[#2D2D2D] bg-[#FF6B9D] px-6 py-4 font-bold text-white transition memphis-rotate-slight-left memphis-btn-hover"
+                                class="rounded-[20px] border-3 border-[#2D2D2D] bg-[#FF6B9D] px-6 py-4 font-bold text-white transition memphis-btn-hover"
                             >
                                 建立任務
                             </button>
-                            <div class="flex items-center gap-2 text-xs text-base-subtle">
-                                <span class="rounded-lg bg-base-bg px-2 py-1 font-medium text-brand-primary shadow-sm">/ai</span>
-                                <span>呼叫原子拆解</span>
-                                <span class="rounded-lg bg-base-bg px-2 py-1 font-medium text-brand-primary shadow-sm">/due</span>
-                                <span>設定截止</span>
-                            </div>
                         </div>
                     </form>
                     <p id="task-feedback" class="mt-3 text-sm text-brand-accent opacity-0 transition-opacity duration-200">任務新增成功</p>
@@ -174,7 +147,7 @@
 
                 <div class="space-y-6">
                     <div class="grid gap-6 lg:grid-cols-2">
-                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#FF6B6B] bg-[#FFE6E6] p-5 memphis-rotate-slight-left">
+                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#FF6B6B] bg-[#FFE6E6] p-5">
                                 <header class="flex items-start justify-between">
                                     <div>
                                         <h3 class="text-xl font-black text-[#FF6B6B]">🔥 重要且緊急</h3>
@@ -191,7 +164,7 @@
                                 </div>
                             </article>
 
-                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#26DE81] bg-[#E6F9F0] p-5 memphis-rotate-slight-right">
+                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#26DE81] bg-[#E6F9F0] p-5">
                                 <header class="flex items-start justify-between">
                                     <div>
                                         <h3 class="text-xl font-black text-[#26DE81]">✨ 重要不緊急</h3>
@@ -208,7 +181,7 @@
                                 </div>
                             </article>
 
-                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#FFA502] bg-[#FFE6CC] p-5 memphis-rotate-slight-left">
+                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#FFA502] bg-[#FFE6CC] p-5">
                                 <header class="flex items-start justify-between">
                                     <div>
                                         <h3 class="text-xl font-black text-[#FFA502]">⏰ 緊急不重要</h3>
@@ -225,7 +198,7 @@
                                 </div>
                             </article>
 
-                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#00D2FC] bg-[#E6F2FF] p-5 memphis-rotate-slight-right">
+                            <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#00D2FC] bg-[#E6F2FF] p-5">
                                 <header class="flex items-start justify-between">
                                     <div>
                                         <h3 class="text-xl font-black text-[#00D2FC]">🎯 不緊急不重要</h3>
@@ -243,7 +216,7 @@
                             </article>
                     </div>
 
-                    <div class="rounded-[30px] border-4 border-[#2D2D2D] bg-white p-6 memphis-rotate-left">
+                    <div class="rounded-[30px] border-4 border-[#2D2D2D] bg-white p-6">
                         <div class="flex items-center justify-between gap-4">
                             <div>
                                 <h2 class="text-2xl font-black text-[#FF6B9D]">📥 待分類區</h2>
@@ -266,13 +239,19 @@
         <footer class="border-t-4 border-[#2D2D2D] bg-white">
             <div class="mx-auto flex w-full max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
                 <span class="italic-bold font-bold text-[#FF6B9D]">Atomic Task Matrix · Memphis Design © 2025</span>
-                <span class="italic-bold text-sm text-[#FFA502]">大膽創意 × 高效執行</span>
+                <span class="italic-bold flex items-center gap-1.5 text-sm text-[#FFA502]">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.25 6.087c0-.355.186-.676.401-.959.221-.29.349-.634.349-1.003 0-1.036-1.007-1.875-2.25-1.875s-2.25.84-2.25 1.875c0 .369.128.713.349 1.003.215.283.401.604.401.959v0a.64.64 0 01-.657.643 48.39 48.39 0 01-4.163-.3c.186 1.613.293 3.25.315 4.907a.656.656 0 01-.658.663v0c-.355 0-.676-.186-.959-.401a1.647 1.647 0 00-1.003-.349c-1.036 0-1.875 1.007-1.875 2.25s.84 2.25 1.875 2.25c.369 0 .713-.128 1.003-.349.283-.215.604-.401.959-.401v0c.31 0 .555.26.532.57a48.039 48.039 0 01-.642 5.056c1.518.19 3.058.309 4.616.354a.64.64 0 00.657-.643v0c0-.355-.186-.676-.401-.959a1.647 1.647 0 01-.349-1.003c0-1.035 1.008-1.875 2.25-1.875 1.243 0 2.25.84 2.25 1.875 0 .369-.128.713-.349 1.003-.215.283-.4.604-.4.959v0c0 .333.277.599.61.58a48.1 48.1 0 005.427-.63 48.05 48.05 0 00.582-4.717.532.532 0 00-.533-.57v0c-.355 0-.676.186-.959.401-.29.221-.634.349-1.003.349-1.035 0-1.875-1.007-1.875-2.25s.84-2.25 1.875-2.25c.37 0 .713.128 1.003.349.283.215.604.401.96.401v0a.656.656 0 00.658-.663 48.422 48.422 0 00-.37-5.36c-1.886.342-3.81.574-5.766.689a.578.578 0 01-.61-.58v0z" />
+                    </svg>
+                    拆大象 × 三步走 · 拒絕拖延症
+                </span>
+                <a href="mailto:tznthou@gmail.com" class="italic-bold text-sm text-[#6C5CE7] hover:text-[#A29BFE] transition-colors duration-200">製作者：子超</a>
             </div>
         </footer>
     </div>
 
     <template id="task-card-template">
-        <article class="task-card group relative rounded-[20px] border-4 border-[#2D2D2D] bg-white p-4 text-sm text-[#2D2D2D] transition memphis-rotate-slight-left"
+        <article class="task-card group relative rounded-[20px] border-4 border-[#2D2D2D] bg-white p-4 text-sm text-[#2D2D2D] transition"
             draggable="true">
             <div class="absolute inset-x-0 top-0 h-1 w-full -translate-y-full bg-[#FF6B9D]/30 opacity-0 transition duration-200 group-hover:translate-y-0 group-hover:opacity-100 rounded-t-[20px]"></div>
             <div class="flex items-start justify-between gap-3">
