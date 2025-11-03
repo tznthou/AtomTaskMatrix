@@ -68,7 +68,29 @@ window.Renderer = {
         const completeButton = node.querySelector('[data-action="complete"]');
         const deleteButton = node.querySelector('[data-action="delete"]');
 
-        titleEl.textContent = task.title;
+        // ✅ 任務強度標示渲染
+        titleEl.textContent = '';  // 清空
+
+        // 如果有強度標示，先顯示 badge
+        if (task.intensity && INTENSITY_ACCENTS[task.intensity]) {
+            const accent = INTENSITY_ACCENTS[task.intensity];
+
+            // 創建強度 badge 容器
+            const intensityBadge = document.createElement('span');
+            intensityBadge.className = `inline-flex items-center gap-1 px-2 py-0.5 rounded border-2 mr-2 font-bold text-[10px] uppercase tracking-wide ${accent.text} ${accent.border} ${accent.bg}`;
+            intensityBadge.style.transform = 'rotate(-1deg)';  // Memphis 風格：輕微旋轉
+            intensityBadge.title = accent.duration;  // Tooltip 顯示時間
+
+            // 添加強度文字（emoji + label）
+            const badgeText = document.createTextNode(`${accent.emoji} ${INTENSITY_LABELS[task.intensity]}`);
+            intensityBadge.appendChild(badgeText);
+
+            titleEl.appendChild(intensityBadge);
+        }
+
+        // 添加任務標題文字（已移除強度 emoji 前綴）
+        const titleText = document.createTextNode(task.title);
+        titleEl.appendChild(titleText);
         // ✅ Heroicons: link 圖標表示子任務來源
         // ✅ 安全修復：使用 createElement + textContent 防止 XSS
         if (task.parent_task_title) {

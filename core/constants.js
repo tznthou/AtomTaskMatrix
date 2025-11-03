@@ -26,3 +26,41 @@ window.STATUS_ACCENTS = {
     not_urgent_not_important: { text: "text-slate-600", border: "border-slate-300", bg: "bg-slate-100" },
     completed: { text: "text-brand-success", border: "border-brand-success/30", bg: "bg-brand-success/10" }
 };
+
+/**
+ * ✅ 任務強度標示 - 用於 AI breakdown 生成的子任務
+ * S = Small (🌱), M = Medium (⚡), L = Large (🚀)
+ */
+window.INTENSITY_LABELS = {
+    S: "小型任務",
+    M: "中型任務",
+    L: "大型任務"
+};
+
+/**
+ * ✅ 任務強度視覺樣式 - Memphis Design 風格
+ * 特色：粗邊框、彩色、輕微旋轉
+ */
+window.INTENSITY_ACCENTS = {
+    S: {
+        text: "text-emerald-700",
+        border: "border-emerald-500",
+        bg: "bg-emerald-50",
+        emoji: "🌱",
+        duration: "≤2分鐘"
+    },
+    M: {
+        text: "text-amber-700",
+        border: "border-amber-500",
+        bg: "bg-amber-50",
+        emoji: "⚡",
+        duration: "5-10分鐘"
+    },
+    L: {
+        text: "text-rose-700",
+        border: "border-rose-500",
+        bg: "bg-rose-50",
+        emoji: "🚀",
+        duration: "15-30分鐘"
+    }
+};

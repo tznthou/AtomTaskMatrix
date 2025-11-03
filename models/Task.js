@@ -18,10 +18,16 @@ window.Task = class Task {
         parentTaskTitle = null,
         createdAt = new Date().toISOString(),
         updatedAt = createdAt,
-        completedAt = null
+        completedAt = null,
+        intensity = null  // ✅ 新增：任務強度（'S'/'M'/'L' 或 null）
     }) {
         this.id = id;
-        this.title = (title ?? "").toString().trim();
+
+        // ✅ 解析 title 中的強度前綴
+        const parsed = Task.parseIntensity(title);
+        this.title = parsed.cleanTitle;
+        this.intensity = intensity ?? parsed.intensity;  // 優先使用傳入值
+
         this.status = status;
         this.parent_task_id = parentTaskId;
         this.parent_task_title = parentTaskTitle;
@@ -32,6 +38,40 @@ window.Task = class Task {
 
     static generateId() {
         return `task-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    }
+
+    /**
+     * 從任務標題中解析強度標示 emoji
+     * @param {string} title - 任務標題（可能含前綴）
+     * @returns {{intensity: string|null, cleanTitle: string}}
+     */
+    static parseIntensity(title) {
+        if (!title) return { intensity: null, cleanTitle: '' };
+
+        const str = String(title).trim();
+
+        // 支援的強度 emoji: 🌱 (S), ⚡ (M), 🚀 (L)
+        const intensityMap = {
+            '🌱': 'S',  // Initiation (≤2 min)
+            '⚡': 'M',  // Short (5-10 min)
+            '🚀': 'L'   // Sustained (15-30 min)
+        };
+
+        // 檢查 title 是否以強度 emoji 開頭
+        for (const [emoji, code] of Object.entries(intensityMap)) {
+            if (str.startsWith(emoji)) {
+                return {
+                    intensity: code,
+                    cleanTitle: str.slice(emoji.length).trim()
+                };
+            }
+        }
+
+        // 向後兼容：無前綴時返回 null
+        return {
+            intensity: null,
+            cleanTitle: str
+        };
     }
 
     static fromApiPayload(payload = {}) {
@@ -56,7 +96,8 @@ window.Task = class Task {
             parentTaskTitle: overrides.parent_task_title ?? overrides.parentTaskTitle ?? this.parent_task_title,
             createdAt: overrides.created_at ?? overrides.createdAt ?? this.created_at,
             updatedAt: overrides.updated_at ?? overrides.updatedAt ?? this.updated_at,
-            completedAt: overrides.completed_at ?? overrides.completedAt ?? this.completed_at
+            completedAt: overrides.completed_at ?? overrides.completedAt ?? this.completed_at,
+            intensity: overrides.intensity ?? this.intensity  // ✅ 處理 intensity
         });
     }
 };

@@ -428,17 +428,39 @@ const GeminiService = {
     // ✅ 安全化 title 防止 prompt injection - 移除換行符、限制長度
     const sanitizedTitle = sanitizeForPrompt(title);
 
-    const prompt = [
-      '請將以下任務拆解成 3-5 個極簡單的微行動，每個行動都應在 2 分鐘內可完成。',
-      `任務：「${sanitizedTitle}」`,
-      '請只回傳 JSON array，例如 ["穿上襪子","換上運動服","做 5 分鐘暖身"]。'
-    ].join('\n');
+    // ✅ 使用混合語言策略的 Prompt（規則英文 + 範例中文）
+    const prompt = `You are a Micro Action Coach helping users overcome procrastination by breaking tasks into tiny actionable steps.
+
+RULES:
+1. Determine granularity based on task scale:
+   - Small tasks: 3-5 steps, each ≤2 minutes
+   - Large tasks: Mix "Initiation (🌱 ≤2min)", "Short (⚡ 5-10min)", "Sustained (🚀 15-30min)" actions
+2. Each step must be: specific, concrete, executable, verb-led
+3. Avoid abstract/planning terms (e.g., "research options", "make a plan", "set strategy")
+4. Use emojis to indicate action intensity:
+   - 🌱 = Initiation Action (≤2 min)
+   - ⚡ = Short Action (5-10 min)
+   - 🚀 = Sustained Action (15-30 min)
+5. Total 3-5 steps with natural difficulty progression
+
+OUTPUT FORMAT (CRITICAL):
+- Return ONLY a JSON string array
+- No numbering (e.g., "Step 1"), no explanations, no markdown code blocks
+- Format: ["🌱 verb-led action in Chinese", "⚡ verb-led action in Chinese", ...]
+- Language: Traditional Chinese (Taiwan style) - 繁體中文（台灣用法）
+
+EXAMPLE:
+Task: 清理書桌
+Correct output: ["🌱 拿出一個垃圾袋放在桌旁", "🌱 移除桌上的垃圾與廢紙", "⚡ 將書本依主題堆放整齊", "⚡ 擦拭桌面與鍵盤", "🚀 檢視整體桌面並將保留物品歸位"]
+
+Now break down this task: ${JSON.stringify(sanitizedTitle)}
+Output in Traditional Chinese (Taiwan):`;
 
     // ✅ 不在 URL query 中傳遞 API key，改用 header
     const url = `https://generativelanguage.googleapis.com/v1/models/${CONFIG.GEMINI_MODEL}:generateContent`;
     const payload = {
       contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: { temperature: 0.7, maxOutputTokens: 400 }
+      generationConfig: { temperature: 0.7, maxOutputTokens: 600 }  // ✅ 提高 token 限制
     };
 
     // ✅ 日誌中不包含敏感信息（API key、完整 payload）
@@ -574,7 +596,18 @@ const GeminiService = {
             if (Array.isArray(parsed) && parsed.length) {
               CONFIG.DEBUG_MODE && Logger.log('[Gemini]   ✓ Valid array with %d items', parsed.length);
               CONFIG.DEBUG_MODE && Logger.log('[Gemini] ========== SUCCESS ==========');
-              return parsed.map(item => sanitizeTitle(String(item)));
+
+              // ✅ LLM Output 驗證：過濾無效內容並限制數量
+              return parsed
+                .filter(item => {
+                  const str = String(item).trim();
+                  if (!str || str.length < 2) return false;  // 拒絕空字串或過短
+                  if (str.match(/<[^>]+>/)) return false;    // 拒絕 HTML tags
+                  if (str.match(/^[=+\-@]/)) return false;   // 拒絕 Sheet 公式
+                  return true;
+                })
+                .map(item => sanitizeTitle(String(item)))
+                .slice(0, 5);  // ✅ 限制最多 5 個子任務
             }
             CONFIG.DEBUG_MODE && Logger.log('[Gemini]   Not an array or empty');
           } catch (err) {
@@ -589,7 +622,18 @@ const GeminiService = {
                 if (Array.isArray(parsed) && parsed.length) {
                   CONFIG.DEBUG_MODE && Logger.log('[Gemini]   ✓ Extracted array with %d items', parsed.length);
                   CONFIG.DEBUG_MODE && Logger.log('[Gemini] ========== SUCCESS ==========');
-                  return parsed.map(item => sanitizeTitle(String(item)));
+
+                  // ✅ LLM Output 驗證：過濾無效內容並限制數量
+                  return parsed
+                    .filter(item => {
+                      const str = String(item).trim();
+                      if (!str || str.length < 2) return false;
+                      if (str.match(/<[^>]+>/)) return false;
+                      if (str.match(/^[=+\-@]/)) return false;
+                      return true;
+                    })
+                    .map(item => sanitizeTitle(String(item)))
+                    .slice(0, 5);
                 }
               } catch (innerErr) {
                 CONFIG.DEBUG_MODE && Logger.log('[Gemini]   Failed to parse extracted array: %s', innerErr.toString());
@@ -615,10 +659,11 @@ const GeminiService = {
 };
 
 function defaultBreakdown(title) {
+  // ✅ Fallback 也使用強度標示，保持格式一致
   return [
-    `釐清「${title}」的第一步`,
-    `準備執行「${title}」所需的工具`,
-    `安排 10 分鐘專注處理「${title}」`
+    `🌱 釐清「${title}」的第一步`,
+    `⚡ 準備執行「${title}」所需的工具`,
+    `⚡ 安排 10 分鐘專注處理「${title}」`
   ].map(sanitizeTitle);
 }
 
@@ -858,6 +903,8 @@ function sanitizeForPrompt(text, maxLength = 200) {
     .replace(/<[^>]+>/g, '')                     // 移除其他 HTML tags
     .replace(/\n/g, ' ')                         // ✅ 移除換行符防止 prompt 結構破壞
     .replace(/\r/g, ' ')                         // 移除 carriage return
+    .replace(/\\/g, '')                          // ✅ 移除反斜線（防止轉義攻擊）
+    .replace(/[{}[\]]/g, '')                     // ✅ 移除大括號和方括號
     .replace(/[「」『』""'']/g, '"')             // 統一引號
     .replace(/\s+/g, ' ')
     .trim()
