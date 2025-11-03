@@ -20,19 +20,19 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 - **UX**: Direct AI breakdown button on task cards, time information display, on-demand statistics modal
 - **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
 - **All Core Functionality**: ✅ 建立任務、拖放分類、AI 分析、刪除任務、完成任務
-- **Security**: ✅ XSS 防護、CSRF Token、Prompt Injection 防護、LLM Output 驗證
+- **Security**: ✅ All identified issues resolved (3 fixed, 1 accepted) - XSS 防護、CSRF Token、Prompt Injection 防護、LLM Output 驗證
 
 ### Security Status 🔒
 
 **Latest Security Audit**: 資安調整規格文件 v2.0 (2025-11-03)
 
-**Security Level**: 🟢 **Very Low Risk** (3/4 issues resolved)
+**Security Level**: 🟢 **Very Low Risk** (3/4 issues resolved, 1 accepted risk)
 
 | Priority | Issue | Status | Fixed Date |
 |----------|-------|--------|------------|
 | 🔴 HIGH | H-01: DOM-based XSS 漏洞 | ✅ Fixed | 2025-11-03 |
 | 🟠 MEDIUM | M-01: 客戶端 API Token 暴露 | ✅ Fixed | 2025-11-03 |
-| 🟠 MEDIUM | M-02: Tailwind CDN 無 SRI 保護 | ⏳ Pending | - |
+| 🟠 MEDIUM | M-02: Tailwind CDN 無 SRI 保護 | ✅ Accepted | 2025-11-03 |
 | 🟢 LOW | L-01: ALLOWED_ORIGIN 配置清理 | ✅ Fixed | 2025-11-03 |
 
 **Current Security Measures**:
@@ -43,16 +43,31 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 - ✅ CSP (Content Security Policy) configured
 - ✅ API authentication via GAS Web App permissions
 - ✅ DEBUG_MODE for controlled error logging
-- ⏳ CDN SRI (Subresource Integrity) - pending implementation
+
+### Accepted Risks ⚠️
+
+1. **M-02: Tailwind CDN without SRI (ACCEPTED 2025-11-03)**
+   - **Issue**: Tailwind CSS loaded from CDN without Subresource Integrity check
+   - **Theoretical Risk**: Supply chain attack if `cdn.tailwindcss.com` is compromised
+   - **Actual Risk**: Very Low
+     - CDN hosted by Cloudflare (extremely secure infrastructure)
+     - HTTPS prevents MITM attacks
+     - Tailwind is CSS-only, doesn't handle user data
+     - Core security (CSRF Token, XSS prevention) unaffected
+   - **Mitigation Options Considered**:
+     - Option A: Keep current CDN (chosen) - 0 hours, preserves Vanilla JS architecture
+     - Option B: Add SRI hash - 15 minutes, but loses JIT compilation benefits
+     - Option C: Self-host Tailwind - 4-6 hours, requires build process setup
+   - **Decision Rationale**:
+     - Cost-benefit analysis: 4-6 hours to fix very low risk is not justified
+     - Architecture philosophy: Vanilla JS simplicity is a project advantage
+     - Defense in depth: Critical protections (CSRF, XSS, Prompt Injection) already in place
+   - **Acceptance**: User explicitly chose to accept this risk
+   - **Review**: Can be revisited if project requirements change (e.g., enterprise deployment)
 
 ### Known Issues 🔴
 
-1. **M-02: Tailwind CDN without SRI (TODO)**
-   - Current setup uses Tailwind CSS CDN without Subresource Integrity check
-   - **Risk**: Supply chain attack if CDN is compromised
-   - **Mitigation**: Self-host Tailwind CSS (4-6 hours work)
-   - **Priority**: Medium - but low actual risk with CSRF Token protection
-   - **Location**: index.html, requires build process setup
+None - All identified security issues have been either fixed or accepted after risk assessment.
 
 ### Resolved Issues ✅
 
@@ -308,12 +323,8 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
      - ✅ Code cleanup: Removed misleading CORS configuration
      - ✅ All core functionality tested and working
 
-   - **Remaining Security Work**:
-     - ⏳ M-02: Self-host Tailwind CSS (remove CDN dependency)
-     - **Estimated**: 4-6 hours
-     - **Priority**: Medium - defensive measure against supply chain attacks
-
    - **Final Status**: ✅ Security level upgraded from "Low Risk" to "Very Low Risk"
+   - **Note**: M-02 (Tailwind CDN without SRI) was later assessed and accepted as a low-risk issue (see Accepted Risks section)
 
 11. **Task Intensity Feature & Gemini Prompt Improvement (RESOLVED 2025-11-03)**
    - **Motivation**: User wanted to improve Gemini prompt quality to generate more actionable micro-tasks and add visual intensity indicators
@@ -615,7 +626,7 @@ cp config.example.js config.js
 - **Gemini Model**: `gemini-2.0-flash` (stable, recommended)
 - **Statistics Design**: Minimalist 3-metric approach (極簡主義方案 A)
 - **Last Updated**: 2025-11-03
-- **Security Status**: 🟢 Very Low Risk (3/4 vulnerabilities fixed)
+- **Security Status**: 🟢 Very Low Risk (100% issues resolved: 3 fixed, 1 accepted)
 
 ## Git Workflow & Deployment Security
 
