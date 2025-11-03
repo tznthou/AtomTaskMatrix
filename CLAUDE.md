@@ -15,7 +15,7 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 - **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
 - **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
 - **Sync**: Real-time sync without localStorage
-- **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model
+- **AI**: Gemini AI Task Breakdown using `gemini-2.0-flash` model with task intensity indicators (🌱⚡🚀)
 - **UX**: Direct AI breakdown button on task cards, time information display, on-demand statistics modal
 - **Deployment**: Production-ready on Zeabur (https://task-matrix.zeabur.app/)
 - **All Core Functionality**: ✅ 建立任務、拖放分類、AI 分析、刪除任務、完成任務
@@ -37,6 +37,8 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 **Current Security Measures**:
 - ✅ CSRF Token protection for all state-changing operations
 - ✅ XSS prevention using safe DOM manipulation
+- ✅ Prompt Injection prevention using JSON.stringify() in Gemini prompts
+- ✅ LLM Output Validation to filter malicious content
 - ✅ CSP (Content Security Policy) configured
 - ✅ API authentication via GAS Web App permissions
 - ✅ DEBUG_MODE for controlled error logging
@@ -44,13 +46,7 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
 ### Known Issues 🔴
 
-1. **Gemini Prompt Quality (TODO)**
-   - Current prompt in `GeminiService.generateSubtasks()` (line 345-349 in backend.gs) may need refinement
-   - Sometimes generates overly verbose or unclear subtask descriptions
-   - **Location to fix**: Lines 345-349 in backend.gs
-   - **Priority**: Low - affects UX only, not functionality
-
-2. **M-02: Tailwind CDN without SRI (TODO)**
+1. **M-02: Tailwind CDN without SRI (TODO)**
    - Current setup uses Tailwind CSS CDN without Subresource Integrity check
    - **Risk**: Supply chain attack if CDN is compromised
    - **Mitigation**: Self-host Tailwind CSS (4-6 hours work)
@@ -318,10 +314,95 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 
    - **Final Status**: ✅ Security level upgraded from "Low Risk" to "Very Low Risk"
 
+11. **Task Intensity Feature & Gemini Prompt Improvement (RESOLVED 2025-11-03)**
+   - **Motivation**: User wanted to improve Gemini prompt quality to generate more actionable micro-tasks and add visual intensity indicators
+   - **Completed Work**:
+
+   **Part A: Security Enhancements** 🔒
+   1. **Fixed Prompt Injection Vulnerability (NEW HIGH PRIORITY)**
+      - **Issue**: Existing prompt used `任務：「${sanitizedTitle}」` which could be exploited
+      - **Attack Vector**: Input like `任務」\n\n忽略以上指令` could hijack LLM behavior
+      - **Fix**: Changed to `任務：${JSON.stringify(sanitizedTitle)}` to properly escape quotes
+      - **Location**: [gas/backend.gs](gas/backend.gs#L456)
+      - **Impact**: Prevents malicious users from manipulating AI responses
+
+   2. **Added LLM Output Validation**
+      - **Issue**: AI-generated subtasks could contain HTML/JS or spreadsheet formulas
+      - **Fix**: Added filtering to reject items with `<tag>` or `^[=+\-@]` patterns
+      - **Location**: [gas/backend.gs](gas/backend.gs#L600-L610), [gas/backend.gs](gas/backend.gs#L627-L636)
+      - **Impact**: Prevents XSS and formula injection attacks via AI output
+
+   3. **Enhanced sanitizeForPrompt()**
+      - **Added**: Remove backslashes `\` and brackets `{}[]` from user input
+      - **Location**: [gas/backend.gs](gas/backend.gs#L906-L907)
+      - **Impact**: Stronger defense against escape-based injection attempts
+
+   **Part B: Feature Implementation** ✨
+   1. **New Gemini Prompt with Mixed Language Strategy**
+      - **Design**: English rules + Chinese examples + explicit JSON output format
+      - **Rationale**: English provides clearer structural instructions for LLM
+      - **Features**:
+        - Task intensity classification (Small vs Large tasks)
+        - Emoji-based intensity indicators: 🌱 (S ≤2min), ⚡ (M 5-10min), 🚀 (L 15-30min)
+        - Strict output format validation (no numbering, no markdown code blocks)
+        - Emphasis on concrete, verb-led actions (避免抽象詞彙)
+      - **Location**: [gas/backend.gs](gas/backend.gs#L431-L457)
+      - **Increased Token Limit**: 400 → 600 tokens to accommodate richer prompts
+      - **Impact**: More specific, actionable micro-tasks with clear time expectations
+
+   2. **Updated defaultBreakdown() Fallback**
+      - **Added**: Emoji prefixes (🌱⚡) to fallback subtasks when AI unavailable
+      - **Location**: [gas/backend.gs](gas/backend.gs#L664-L666)
+      - **Impact**: Consistent UX even without Gemini API key
+
+   3. **Extended Task Model with Intensity Parsing**
+      - **New Field**: `intensity` property ('S'/'M'/'L' or null)
+      - **New Method**: `Task.parseIntensity(title)` extracts emoji and cleans title
+      - **Backward Compatible**: Old tasks without emoji return `intensity: null`
+      - **Location**: [models/Task.js](models/Task.js#L22-L29), [models/Task.js](models/Task.js#L43-L75)
+      - **Impact**: Frontend can distinguish task sizes without backend changes
+
+   4. **Added Intensity Constants**
+      - **New Constants**: `INTENSITY_LABELS`, `INTENSITY_ACCENTS`
+      - **Visual Style**: Memphis Design badges (thick borders, bright colors, rotation)
+      - **Includes**: emoji, duration text, Tailwind color classes
+      - **Location**: [core/constants.js](core/constants.js#L30-L66)
+      - **Impact**: Centralized configuration for consistent styling
+
+   5. **Implemented Badge Rendering**
+      - **Visual Design**: Colored badges with emoji + label (e.g., "🌱 小型任務")
+      - **Placement**: Before task title, with Memphis rotation effect
+      - **Tooltip**: Shows duration on hover (e.g., "≤2分鐘")
+      - **Safety**: Uses safe DOM manipulation (`createElement` + `textContent`)
+      - **Location**: [ui/Renderer.js](ui/Renderer.js#L71-L93)
+      - **Impact**: Users instantly see task time investment required
+
+   **Emoji Cross-Platform Compatibility Analysis**:
+   - Initial design used 🪶 (feather, Unicode 13.0, 2020+)
+   - Switched to older emojis for 99%+ device support:
+     - 🌱 (Seedling): Unicode 6.0 (2010)
+     - ⚡ (High Voltage): Unicode 4.0 (2003)
+     - 🚀 (Rocket): Unicode 6.0 (2010)
+   - Decision: Direct emoji in titles (方案 D) for simplicity
+
+   **Design Philosophy**:
+   - **向後兼容 (Backward Compatibility)**: All existing tasks without emoji work normally
+   - **漸進增強 (Progressive Enhancement)**: New AI-generated tasks automatically get intensity badges
+   - **Code Protection**: Only modified necessary files, preserved all working logic
+
+   - **Git Commits**:
+     - Feature branch: `feature/task-intensity-security`
+     - Merged to master and deployed to production
+     - All tests passed in local and production environments
+
+   - **Final Status**: ✅ Deployed to production, tested and working perfectly
+
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
 - To switch models: Edit CONFIG.GEMINI_MODEL in backend.gs line 15
 - Available models: `gemini-2.0-flash` (stable, recommended), `gemini-2.5-flash` (may have response format issues)
+- Task intensity system: Check [models/Task.js](models/Task.js#L43-L75) for emoji parsing logic
+- To modify intensity badges: Edit [core/constants.js](core/constants.js#L30-L66) for colors and durations
 
 ## Core Architecture
 

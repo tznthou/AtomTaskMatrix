@@ -14,6 +14,7 @@ Atomic Task Matrix 是一個輕量級的任務管理工具,核心理念是「完
 
 - ✅ **四象限拖曳分類** - 直覺的拖放介面,快速區分任務優先級
 - 🤖 **AI 智能拆解** - 運用 Gemini API 將大任務拆解成可立即執行的微行動
+- 🌱 **任務強度標示** - AI 自動標註任務時間成本（🌱 ≤2分鐘、⚡ 5-10分鐘、🚀 15-30分鐘）
 - ☁️ **Google Sheets 即時同步** - 所有操作即時儲存,連線狀態清楚呈現
 - 📊 **完成率追蹤** - 每週統計平均任務存活時間,了解執行效率
 - 🎯 **待分類緩衝區** - 新任務先進入緩衝區,思考後再分類
@@ -53,7 +54,8 @@ flowchart TB
 - **前端層**: 模組化 JavaScript 架構（12 個模組，5 層架構），使用 Tailwind 4.0 CDN 處理樣式
 - **狀態管理**: 即時操作直接同步到 Google Sheets,不使用 localStorage 避免資料不一致
 - **資料層**: Google Sheets 作為雲端資料庫,分為 Tasks(任務資料) 和 Analytics(統計資料) 兩個分頁
-- **AI 層**: Gemini API (`gemini-2.0-flash`) 負責任務拆解,按需觸發不佔用不必要額度
+- **AI 層**: Gemini API (`gemini-2.0-flash`) 負責任務拆解與強度標註,按需觸發不佔用不必要額度
+- **任務強度系統**: 前端解析 emoji 前綴（🌱⚡🚀）並渲染 Memphis 風格 badges,後端透過改進的 Prompt 確保 AI 輸出包含強度標示
 
 ---
 
@@ -79,12 +81,12 @@ atomic-task-matrix/
 ├─ config.js               # API 設定檔(需自行建立,已加入 .gitignore)
 ├─ tailwind-config.js      # Tailwind CSS 配置（Memphis 設計系統）
 ├─ core/                   # Layer 1-2: 基礎與配置
-│  ├─ constants.js         # 狀態標籤與顏色定義
+│  ├─ constants.js         # 狀態標籤、顏色定義、任務強度常數 (66 lines)
 │  ├─ icons.js             # Heroicons SVG 圖標庫
 │  ├─ config.js            # API 配置管理
 │  └─ state.js             # 全域狀態與 DOM 引用
 ├─ models/                 # Layer 1: 資料模型
-│  └─ Task.js              # 任務資料模型類別
+│  └─ Task.js              # 任務資料模型類別 (含強度解析邏輯, 103 lines)
 ├─ services/               # Layer 3: 服務層
 │  └─ BackendGateway.js    # Google Apps Script API 通訊
 ├─ handlers/               # Layer 4: 互動處理
@@ -94,14 +96,14 @@ atomic-task-matrix/
 ├─ monitors/               # Layer 4: 監控
 │  └─ ConnectionMonitor.js # 連線狀態監控
 ├─ ui/                     # Layer 4: UI 元件
-│  ├─ Renderer.js          # UI 渲染與更新
+│  ├─ Renderer.js          # UI 渲染與更新 (含強度 badge 渲染)
 │  ├─ ConfirmDialog.js     # 確認對話框元件
 │  └─ FeedbackToast.js     # Toast 通知元件
 ├─ app/                    # Layer 5: 應用啟動
 │  ├─ events.js            # 事件綁定
 │  └─ bootstrap.js         # 應用初始化
 └─ gas/                    # Google Apps Script 後端
-   └─ backend.gs           # GAS Web App 後端程式碼
+   └─ backend.gs           # GAS Web App 後端程式碼 (含 Gemini Prompt 與資安防護)
 ```
 
 **架構設計原則:**
@@ -171,11 +173,19 @@ window.CONFIG = {
 
 1. **新增任務** → 任務出現在「待分類區」
 2. **拖曳分類** → 將任務拖到四象限之一(重要緊急/重要不緊急/不重要緊急/不重要不緊急)
-3. **選擇任務** → 點擊任務卡片顯示詳細資訊
-4. **AI 拆解(可選)** → 點擊「🤖 AI 拆解」按鈕,Gemini 分析並生成子任務
-5. **執行任務** → 從最小的子任務開始執行
-6. **標記完成** → 點擊完成按鈕,任務從畫面消失但記錄在 Google Sheets
-7. **查看統計** → 每週自動計算平均任務存活時間
+3. **AI 拆解(可選)** → 點擊「🤖 AI 拆解」按鈕,Gemini 分析並生成帶有強度標示的子任務
+   - 🌱 **小型任務** (≤2分鐘): 快速啟動行動,例如「穿上襪子」
+   - ⚡ **中型任務** (5-10分鐘): 短時間專注,例如「整理桌面」
+   - 🚀 **大型任務** (15-30分鐘): 持續投入,例如「撰寫專案報告」
+4. **執行任務** → 從最小的子任務（🌱）開始執行,逐步進入工作狀態
+5. **標記完成** → 點擊完成按鈕,任務從畫面消失但記錄在 Google Sheets
+6. **查看統計** → 每週自動計算平均任務存活時間
+
+### 任務強度系統說明
+
+**自動標註**: AI 拆解時自動為每個子任務添加強度 emoji（🌱⚡🚀）
+**視覺提示**: 任務卡片上會顯示彩色的強度 badge,滑鼠懸停可查看時間估計
+**向後兼容**: 舊任務或手動建立的任務不會顯示強度標示,不影響正常使用
 
 ### 連線狀態說明
 
@@ -216,6 +226,12 @@ window.CONFIG = {
 - ✅ 移除誤導性 ALLOWED_ORIGIN 配置
 - ✅ GAS Web App 預設允許所有來源（無法自訂）
 - ✅ 透過 CSRF Token 機制提供跨站請求防護
+
+**AI 安全防護 (NEW - 2025-11-03)**:
+- ✅ **Prompt Injection 防護**: 使用 `JSON.stringify()` 對使用者輸入進行轉義,防止 LLM 指令注入
+- ✅ **LLM Output Validation**: 過濾 AI 輸出中的 HTML 標籤 `<tag>` 和試算表公式 `^[=+\-@]`
+- ✅ **Enhanced sanitization**: 移除反斜線 `\` 和括號 `{}[]` 等可能的轉義字元
+- ✅ 所有 AI 生成的任務標題經過多層驗證,確保不含惡意內容
 
 **待處理項目 (M-02)**:
 - ⏳ Tailwind CSS 自託管（工時: 4-6 小時）
@@ -364,5 +380,11 @@ A: 個人使用通常足夠,因為拆解功能是按需觸發,不是每個任務
 **Q: 可以離線使用嗎?**  
 A: 目前不支援離線模式,未來可考慮加入 Service Worker 與本地快取。
 
-**Q: 如何備份資料?**  
+**Q: 如何備份資料?**
 A: 所有資料在 Google Sheets 中,可直接下載試算表或設定自動備份。
+
+**Q: 任務強度標示（🌱⚡🚀）是如何運作的?**
+A: AI 拆解時會根據任務複雜度自動添加 emoji 前綴,前端會解析這些 emoji 並顯示彩色 badges。舊任務或手動建立的任務不會有強度標示,但不影響使用。
+
+**Q: 可以手動設定任務強度嗎?**
+A: 目前強度標示由 AI 自動判斷。如果想手動設定,可以在任務標題前手動加入 🌱、⚡ 或 🚀 emoji,系統會自動識別並顯示對應的 badge。
