@@ -145,8 +145,30 @@
                     <p id="task-feedback" class="mt-3 text-sm text-brand-accent opacity-0 transition-opacity duration-200">任務新增成功</p>
                 </div>
 
-                <div class="space-y-6">
-                    <div class="grid gap-6 lg:grid-cols-2">
+                <div class="flex flex-col gap-6 lg:flex-row">
+                    <!-- 左側：未分類區域 -->
+                    <div class="w-full lg:w-80 lg:flex-shrink-0">
+                        <div class="rounded-[30px] border-4 border-[#2D2D2D] bg-white p-6">
+                            <div class="flex items-center justify-between gap-4">
+                                <div>
+                                    <h2 class="text-2xl font-black text-[#FF6B9D]">📥 待分類區</h2>
+                                    <p class="text-sm italic-bold text-[#FFA502]">新任務先進來，再慢慢分類！</p>
+                                </div>
+                                <span class="rounded-[20px] border-3 border-[#2D2D2D] bg-white px-3 py-2 text-xs font-bold text-[#2D2D2D]">拖曳分類</span>
+                            </div>
+                            <div
+                                id="uncategorized-dropzone"
+                                data-status="uncategorized"
+                                class="mt-4 min-h-[120px] space-y-3 rounded-[20px] border-4 border-dashed border-[#2D2D2D] bg-[#FFF9E6] p-4 transition"
+                            >
+                                <p class="text-sm text-base-subtle">目前沒有任務，透過命令列加入第一個行動。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右側：四象限區域 -->
+                    <div class="flex-1">
+                        <div class="grid gap-6 lg:grid-cols-2">
                             <article class="flex flex-col gap-3 rounded-[25px] border-5 border-[#FF6B6B] bg-[#FFE6E6] p-5">
                                 <header class="flex items-start justify-between">
                                     <div>
@@ -214,22 +236,6 @@
                                     <p class="text-xs text-slate-500">拖曳任務或使用 Shift+↓ 移動到此</p>
                                 </div>
                             </article>
-                    </div>
-
-                    <div class="rounded-[30px] border-4 border-[#2D2D2D] bg-white p-6">
-                        <div class="flex items-center justify-between gap-4">
-                            <div>
-                                <h2 class="text-2xl font-black text-[#FF6B9D]">📥 待分類區</h2>
-                                <p class="text-sm italic-bold text-[#FFA502]">新任務先進來，再慢慢分類！</p>
-                            </div>
-                            <span class="rounded-[20px] border-3 border-[#2D2D2D] bg-white px-3 py-2 text-xs font-bold text-[#2D2D2D]">拖曳分類</span>
-                        </div>
-                        <div
-                            id="uncategorized-dropzone"
-                            data-status="uncategorized"
-                            class="mt-4 min-h-[120px] grid grid-cols-1 lg:grid-cols-2 gap-3 rounded-[20px] border-4 border-dashed border-[#2D2D2D] bg-[#FFF9E6] p-4 transition"
-                        >
-                            <p class="text-sm text-base-subtle">目前沒有任務，透過命令列加入第一個行動。</p>
                         </div>
                     </div>
                 </div>

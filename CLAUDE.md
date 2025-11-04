@@ -11,7 +11,7 @@ Atomic Task Matrix is a task management application that combines the Eisenhower
 ### Completed Features ✅
 - **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (~1020 lines total after UI cleanup)
 - **UI Design**: **Memphis Design** (粗邊框 + 彩色卡片), drag-and-drop, HeroIcons SVG icons
-- **Layout**: Optimized information hierarchy (quadrants-first), modal-based statistics, 2-column grid for uncategorized tasks
+- **Layout**: Left-right split layout (left: uncategorized 320px, right: 4 quadrants 2x2), modal-based statistics, optimized for left-to-right drag workflow
 - **Backend**: GAS with REST endpoints (`/tasks`, `/tasks/update`, `/tasks/{id}/complete`, `/tasks/{id}/breakdown`, `/stats/weekly`)
 - **Database**: Google Sheets CRUD operations (create, read, update, delete, complete tasks)
 - **Sync**: Real-time sync without localStorage
@@ -605,6 +605,82 @@ None - All identified security issues have been either fixed or accepted after r
      - Testing: Production verified on https://task-matrix.zeabur.app/
 
    - **Final Status**: ✅ Deployed to production, all tests passed, verified working
+
+15. **Layout Restructure - Left-Right Split (RESOLVED 2025-11-04)**
+   - **Motivation**: User requested layout change to improve drag-and-drop UX: "從下往上拖拽不順手，左右拖拽更直覺"
+   - **Problem Analysis**:
+     - Original layout: Quadrants (top) + Uncategorized (bottom)
+     - Poor UX: Creating task → appears at bottom → drag upward to quadrants (awkward)
+     - User workflow inefficiency: Vertical scrolling required for task categorization
+
+   - **Solution Implemented**:
+     1. **Parent Container Layout** ([index.html:148](index.html:148))
+        - Changed from `space-y-6` (vertical stack) → `flex flex-col gap-6 lg:flex-row` (horizontal split)
+        - Enables left-right layout on desktop, maintains vertical stack on mobile
+
+     2. **Left Side: Uncategorized Zone** ([index.html:150-167](index.html:150))
+        - Added wrapper: `w-full lg:w-80 lg:flex-shrink-0`
+        - Desktop: Fixed 320px width, single column layout
+        - Mobile: 100% width, vertical stack
+        - Changed internal layout: `grid lg:grid-cols-2` → `space-y-3` (single column)
+
+     3. **Right Side: Four Quadrants** ([index.html:170-240](index.html:170))
+        - Added wrapper: `flex-1` (flexible width, fills remaining space)
+        - Maintains 2x2 grid: `grid gap-6 lg:grid-cols-2`
+        - Responsive: Vertical stack on mobile, grid on desktop
+
+   - **Technical Details**:
+     - **Layout Strategy**: Flexbox-based split (consistent with existing code style)
+     - **Responsive Breakpoints**:
+       - Mobile (<1024px): Uncategorized on top, quadrants below (vertical)
+       - Desktop (≥1024px): Uncategorized left (320px), quadrants right (flexible)
+     - **Memphis Design**: 100% preserved (thick borders, colors, dashed lines)
+     - **JavaScript Impact**: Zero modifications required (no DOM order dependencies)
+
+   - **UX Improvement**:
+     - **Before**: Create task → bottom → drag upward (counterintuitive)
+     - **After**: Create task → left side → drag rightward (natural workflow)
+     - **Benefit**: Horizontal drag motion aligns with reading direction (left-to-right)
+
+   - **Code Changes**:
+     - **Modified Files**: [index.html](index.html) only
+     - **Lines Changed**: ~15 lines (pure Tailwind class adjustments)
+     - **Element Reordering**: Swapped uncategorized and quadrants positions
+     - **No Breaking Changes**: All functionality preserved
+
+   - **Safety Analysis**:
+     - ✅ No JavaScript dependencies on DOM order (uses `getElementById()`)
+     - ✅ No CSS pseudo-selectors dependent on order (`:nth-child` not used)
+     - ✅ Drag-and-drop uses `data-status` attribute (position-independent)
+     - ✅ All existing features tested: create, drag, delete, complete, AI breakdown
+
+   - **Responsive Design**:
+     | Breakpoint | Layout | Uncategorized | Quadrants |
+     |------------|--------|--------------|-----------|
+     | Mobile (<1024px) | Vertical | 100% width, top | Stacked below |
+     | Desktop (≥1024px) | Horizontal | 320px left | Flexible right (2x2) |
+
+   - **Visual Balance**:
+     - Left sidebar: Fixed 320px provides adequate space for task cards
+     - Right area: Flexible width ensures quadrants have sufficient room
+     - Gap spacing: Consistent 1.5rem (`gap-6`) maintains Memphis aesthetic
+
+   - **Testing Results**:
+     - ✅ Desktop layout: Left 320px + Right flexible works perfectly
+     - ✅ Mobile layout: Vertical stack maintains usability
+     - ✅ Drag-and-drop: Left-to-right motion feels more natural
+     - ✅ All task operations: Create, categorize, delete, complete, AI breakdown
+     - ✅ Visual consistency: Memphis Design fully preserved
+
+   - **Files Modified**:
+     - [index.html](index.html:148-241) - Layout structure and Tailwind classes
+
+   - **Deployment**:
+     - Platform: Zeabur (https://task-matrix.zeabur.app/)
+     - Deployment method: Direct HTML update via VS Code extension
+     - Testing: Manual verification in production environment
+
+   - **Final Status**: ✅ Deployed to production, tested and working perfectly
 
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
