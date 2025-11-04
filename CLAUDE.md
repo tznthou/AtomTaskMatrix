@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Atomic Task Matrix is a task management application that combines the Eisenhower Matrix with atomic habits principles. It uses AI (Google Gemini) to break down large tasks into micro-actions, helping users overcome procrastination. All data is synced to Google Sheets in real-time.
 
-## ⚠️ Current Project Status (2025-11-03)
+## ⚠️ Current Project Status (2025-11-04)
 
 ### Completed Features ✅
 - **Frontend Architecture**: Modularized into 12 files with 5-layer architecture (~1020 lines total after UI cleanup)
@@ -532,6 +532,80 @@ None - All identified security issues have been either fixed or accepted after r
 
    - **Final Status**: ✅ Deployed to production, tested and working perfectly
 
+14. **CSRF Token Rotation 機制修復 (RESOLVED 2025-11-04)**
+   - **Motivation**: 用戶遇到連續操作失敗問題 - 第一次拖放任務成功，第二次失敗並顯示 "Missing or invalid CSRF token" 錯誤
+   - **Root Cause Analysis**:
+     - 後端使用 **use-once CSRF token** 設計（驗證成功後立即刪除 token）
+     - POST/PUT/DELETE 操作消耗舊 token 但**不返回新 token**
+     - 前端持有已失效的 token，導致第二次操作失敗
+     - 影響範圍：所有連續的狀態變更操作（拖放、完成、刪除、AI 分解）
+
+   - **Solution: Token Rotation Implementation**:
+     - 實施 **OWASP 推薦的 Token Rotation 機制**
+     - 每次 POST/PUT/DELETE 操作消耗舊 token 的同時，返回新 token
+     - 前端自動儲存新 token（BackendGateway.js:112-115 已有機制，無需修改）
+
+   - **Backend Changes** (gas/backend.gs):
+     - Modified 5 endpoints in `routeRequest()` function (lines 96-115)
+     - Added `generateCsrfToken()` call and `csrf_token` to response payload:
+       1. **POST /tasks** (line 96-98) - 建立任務
+       2. **POST /tasks/update** (line 99-101) - 更新任務狀態（拖放）
+       3. **POST /tasks/{id}/complete** (line 102-105) - 完成任務
+       4. **POST /tasks/{id}/breakdown** (line 106-110) - AI 任務分解
+       5. **DELETE /tasks/{id}** (line 111-115) - 刪除任務
+     - Code change: +10 lines (5 endpoints × 2 lines each)
+
+   - **Frontend Impact**:
+     - ✅ No modifications required
+     - Existing auto-save mechanism in BackendGateway.js handles token updates
+     - Token stored in `AppState.csrfToken` and automatically refreshed on every response
+
+   - **Security Assessment** 🔒:
+     - **Core Principles Maintained**:
+       - ✅ Use-once token (每個 token 驗證後仍立即刪除)
+       - ✅ 5-minute expiration (token 最長壽命 5 分鐘)
+       - ✅ SHA-256 + random generation (不可預測性)
+       - ✅ Mandatory validation for all state-changing operations
+     - **New Security Benefits**:
+       - ✅ Shortened attack window (token 更頻繁更新)
+       - ✅ Complies with OWASP Synchronizer Token Pattern
+       - ✅ Implements Defense in Depth principle
+     - **Risk Analysis**:
+       - ❌ No new risks introduced
+       - ✅ Does not violate existing security mechanisms
+       - ✅ Strengthens CSRF protection
+
+   - **Technical Details**:
+     - Token lifecycle: Generate → Use → Delete → Generate new (continuous rotation)
+     - Each operation returns: `{ success: true, ..., csrf_token: "new_token_here" }`
+     - Frontend automatically extracts and stores new token from response
+     - Supports unlimited consecutive operations without page refresh
+
+   - **Testing Results**:
+     - ✅ Production deployment successful
+     - ✅ Consecutive drag-and-drop operations (3+ times) all succeed
+     - ✅ No "Missing or invalid CSRF token" errors in Console
+     - ✅ Token rotation verified via Network panel inspection
+     - ✅ All operation types tested: create, update, complete, delete, AI breakdown
+
+   - **User Experience Improvement**:
+     - **Before**: First operation ✅ → Second operation ❌ → Must refresh page
+     - **After**: Unlimited consecutive operations ✅✅✅ → No refresh needed
+     - Impact: Seamless workflow, reduced friction, better UX
+
+   - **Files Modified**:
+     - [gas/backend.gs](gas/backend.gs#L96-L115) - Added token generation to 5 endpoints
+     - No frontend changes required
+
+   - **Git Commit**: `8827fc7` - "fix: 實施 CSRF Token Rotation 機制修復連續操作失敗問題"
+
+   - **Deployment Strategy**:
+     - Backend: GAS deployment with new version (URL unchanged)
+     - Frontend: No changes, auto-compatible with new backend
+     - Testing: Production verified on https://task-matrix.zeabur.app/
+
+   - **Final Status**: ✅ Deployed to production, all tests passed, verified working
+
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
 - To switch models: Edit CONFIG.GEMINI_MODEL in backend.gs line 15
@@ -625,8 +699,9 @@ cp config.example.js config.js
 - **GAS Web App URL**: `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
 - **Gemini Model**: `gemini-2.0-flash` (stable, recommended)
 - **Statistics Design**: Minimalist 3-metric approach (極簡主義方案 A)
-- **Last Updated**: 2025-11-03
+- **Last Updated**: 2025-11-04
 - **Security Status**: 🟢 Very Low Risk (100% issues resolved: 3 fixed, 1 accepted)
+- **Latest Fix**: CSRF Token Rotation 機制 - 支援無限連續操作
 
 ## Git Workflow & Deployment Security
 
