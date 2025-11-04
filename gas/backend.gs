@@ -94,20 +94,25 @@ function routeRequest(defaultMethod, e) {
       const csrfToken = generateCsrfToken();
       payload = { success: true, tasks: TaskRepository.listAll(), csrf_token: csrfToken };
     } else if (method === 'POST' && path === 'tasks') {
-      payload = { success: true, task: TaskService.create(body) };
+      const csrfToken = generateCsrfToken();
+      payload = { success: true, task: TaskService.create(body), csrf_token: csrfToken };
     } else if (method === 'POST' && path === 'tasks/update') {
-      payload = { success: true, task: TaskService.updateStatus(body?.id, body?.status) };
+      const csrfToken = generateCsrfToken();
+      payload = { success: true, task: TaskService.updateStatus(body?.id, body?.status), csrf_token: csrfToken };
     } else if (method === 'POST' && path.endsWith('/complete')) {
       const taskId = path.split('/')[1];
-      payload = { success: true, task: TaskService.complete(taskId) };
+      const csrfToken = generateCsrfToken();
+      payload = { success: true, task: TaskService.complete(taskId), csrf_token: csrfToken };
     } else if (method === 'POST' && path.endsWith('/breakdown')) {
       const taskId = path.split('/')[1];
       const result = TaskService.breakdown(taskId);
-      payload = { success: true, ...result };
+      const csrfToken = generateCsrfToken();
+      payload = { success: true, ...result, csrf_token: csrfToken };
     } else if ((method === 'DELETE' || method === 'POST') && path.endsWith('/delete')) {
       // ⚠️ 支持 POST 是因為 DELETE 會觸發 CORS preflight（GAS 不支持 OPTIONS）
       const taskId = path.split('/')[1];
-      payload = { success: true, result: TaskService.delete(taskId) };
+      const csrfToken = generateCsrfToken();
+      payload = { success: true, result: TaskService.delete(taskId), csrf_token: csrfToken };
     } else if (method === 'GET' && path === 'stats/weekly') {
       // ✅ 統計接口也生成 CSRF token
       const csrfToken = generateCsrfToken();
