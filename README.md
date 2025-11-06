@@ -29,22 +29,25 @@ Atomic Task Matrix 是一個輕量級的任務管理工具,核心理念是「完
 flowchart TB
     User[使用者] --> UI[前端 HTML/JS]
     UI --> LocalState[瀏覽器狀態管理]
-    LocalState --> SheetsAPI[Google Sheets API]
-    SheetsAPI --> Tasks[Tasks 分頁]
-    SheetsAPI --> Analytics[Analytics 分頁]
-    
-    UI --> GeminiAPI[Gemini AI API]
+    LocalState --> GASBackend[GAS Web App Backend]
+    GASBackend --> Tasks[Tasks 分頁]
+    GASBackend --> Analytics[Analytics 分頁]
+
+    GASBackend --> GeminiAPI[Gemini AI API]
     GeminiAPI --> TaskBreakdown[任務拆解引擎]
-    TaskBreakdown --> UI
-    
+    TaskBreakdown --> GASBackend
+
     Tasks --> TaskSync[即時同步]
-    TaskSync --> LocalState
-    
-    subgraph Google Sheets Backend
-        Tasks
-        Analytics
+    TaskSync --> GASBackend
+
+    subgraph Google Apps Script
+        GASBackend
+        subgraph Google Sheets
+            Tasks
+            Analytics
+        end
     end
-    
+
     subgraph AI Analysis
         GeminiAPI
         TaskBreakdown
@@ -79,7 +82,7 @@ flowchart TB
 ```bash
 atomic-task-matrix/
 ├─ index.html              # 主 HTML 檔案
-├─ config.js               # API 設定檔(需自行建立,已加入 .gitignore)
+├─ config.js               # API 設定檔(部署時建立,需手動管理 Git)
 ├─ tailwind-config.js      # Tailwind CSS 配置（Memphis 設計系統）
 ├─ core/                   # Layer 1-2: 基礎與配置
 │  ├─ constants.js         # 狀態標籤、顏色定義、任務強度常數 (66 lines)
@@ -243,12 +246,19 @@ window.CONFIG = {
 - ✅ **Enhanced sanitization**: 移除反斜線 `\` 和括號 `{}[]` 等可能的轉義字元
 - ✅ 所有 AI 生成的任務標題經過多層驗證,確保不含惡意內容
 
-### API 金鑰保護
+### API 金鑰保護與 Git 管理
 
-- ❌ **不要將 config.js 加入版本控制**
-- ✅ 使用 `.gitignore` 排除 `config.js`
+**config.js 管理策略**:
+- ⚠️ config.js **不在** `.gitignore` 中（為支援 Zeabur 部署）
+- ✅ **必須**使用選擇性 `git add <file>` 避免意外提交 config.js
+- ❌ **禁止**使用 `git add .` 或 `git add -A`（會包含 config.js）
+- 📖 詳見 [CLAUDE.md](CLAUDE.md) 的「Git Workflow & Deployment Security」章節
+
+**安全評估**:
 - ✅ GAS Web App URL 本身不構成安全風險（公開存取設計）
+- ✅ 核心防護依賴 CSRF Token 機制（後端驗證）
 - ⚠️ Gemini API Key 僅存於 GAS Script Properties,不暴露於前端
+- 🔒 Git 歷史已完全清理,無 config.js 記錄
 
 ### Google Sheets 權限設定
 
@@ -271,17 +281,27 @@ window.CONFIG = {
 
 ### 靜態網頁託管 (推薦)
 
-**Zeabur / Netlify / Vercel:**
+**Zeabur (當前使用):**
+- 使用 Zeabur VS Code Extension 部署
+- config.js 會自動包含在部署中（Extension 不受 .gitignore 限制）
+- 適合需要 config.js 的專案
+- 🚀 當前生產環境: https://task-matrix.zeabur.app/
+
+**Netlify / Vercel:**
 - 直接連接 GitHub Repository
-- 部署時手動建立 `config.js` 並填入 GAS Web App URL
-- 自動化部署
-- ⚠️ **注意**: 不要推送 `config.js` 到 Git
+- 部署時需手動上傳 `config.js` 或使用環境變數
+- 自動化部署（需設定 config.js 處理策略）
 
 **GitHub Pages:**
 ```bash
 # 推送到 GitHub 後在設定中啟用 Pages
-# ⚠️ 注意: 不要推送 config.js,部署時需手動設定
+# ⚠️ 注意: 需手動處理 config.js（不推送到 GitHub）
 ```
+
+**Git 操作重要提醒**:
+- ✅ 推送代碼時使用: `git add <specific-files>`
+- ❌ 禁止使用: `git add .` 或 `git add -A`
+- 📖 詳細工作流程見 [CLAUDE.md](CLAUDE.md) 的 Git Workflow 章節
 
 ### 本地開發
 
@@ -351,7 +371,9 @@ window.CONFIG = {
 
 ## 📜 授權
 
-MIT License © 2025 子超
+本專案採用 MIT 授權 - 詳見 [LICENSE](LICENSE) 文件
+
+Copyright © 2025 AtomTask
 
 ---
 
