@@ -100,7 +100,7 @@ BackendGateway 現在會輸出詳細的錯誤信息到瀏覽器控制台：
 **診斷**：
 - 嘗試直接訪問 GAS 端點：
   ```
-  https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?path=health&token=YOUR_API_TOKEN
+  https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec?path=health
   ```
 - 應該返回 JSON 內容
 

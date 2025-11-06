@@ -771,8 +771,8 @@ cp config.example.js config.js
 
 ### Current Production Setup
 - **Frontend**: https://task-matrix.zeabur.app/
-- **Spreadsheet ID**: `YOUR_SPREADSHEET_ID`
-- **GAS Web App URL**: `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
+- **Spreadsheet ID**: `YOUR_SPREADSHEET_ID` (⚠️ Fill in your own, do not commit real ID)
+- **GAS Web App URL**: `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec` (⚠️ Fill in your own, do not commit real URL)
 - **Gemini Model**: `gemini-2.0-flash` (stable, recommended)
 - **Statistics Design**: Minimalist 3-metric approach (極簡主義方案 A)
 - **Last Updated**: 2025-11-04

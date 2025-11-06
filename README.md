@@ -151,7 +151,7 @@ cp config.example.js config.js
 ### 後端 Web App (Google Apps Script)
 
 - **程式碼位置**: `gas/backend.gs`
-- **試算表 ID**: `YOUR_SPREADSHEET_ID`
+- **試算表 ID**: `YOUR_SPREADSHEET_ID` (請在 GAS backend.gs 中設定)
 - **已部署 Web App URL**:
   `https://script.google.com/macros/s/YOUR_DEPLOYMENT_ID/exec`
 - **Gemini AI 啟用**: 於 Apps Script「專案設定 → 指令碼屬性」新增 `GEMINI_API_KEY`
