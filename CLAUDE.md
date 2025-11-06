@@ -682,6 +682,35 @@ None - All identified security issues have been either fixed or accepted after r
 
    - **Final Status**: ✅ Deployed to production, tested and working perfectly
 
+### Future Roadmap 🚀
+
+**Product Philosophy**: Focus on core value (Eisenhower Matrix + Atomic Habits), avoid feature bloat
+
+**Planned Features** (2 items, down from 7):
+1. **🔐 Multi-Tenancy Support** - Google Account login, each user has independent task space (requires OAuth Client ID setup)
+   - Technical approach: Frontend Google Identity Services + Backend token verification
+   - Estimated effort: 9-13 hours
+   - Status: Technically feasible, documented architecture
+   - Note: NOT collaborative (Trello-style), but isolated workspaces (Notion-style)
+
+2. **🔒 Prevent Over-Breakdown** - Child tasks cannot be AI-broken down again to avoid excessive fragmentation
+   - Frontend: Hide AI button for tasks with `parent_task_id !== null`
+   - Backend: Reject breakdown requests for child tasks
+   - Estimated effort: 2-3 hours
+   - Aligns with minimalist philosophy
+
+**Removed Directions** (5 items removed after product positioning review):
+- ❌ Theme Customization - Visual feature, not core functionality
+- ❌ Task Tags - Increases cognitive load, conflicts with quadrant classification
+- ❌ Advanced Statistics - Current 3 metrics already sufficient
+- ❌ Notification Reminders - Changes product character, conflicts with atomic habits philosophy
+- ❌ Mobile Optimization - Current responsive design is adequate, desktop-first positioning
+
+**Design Decision Process**:
+- All removals align with user's choice of "極簡主義" (minimalism) for statistics
+- Maintains clear product boundary: Priority judgment + Task breakdown, not a full-featured task manager
+- Desktop-first tool, not pursuing full-platform full-feature parity
+
 ### Debugging Tips
 - For Gemini issues: Check GAS logs with `[Gemini]` prefix (lines 337-518 in backend.gs)
 - To switch models: Edit CONFIG.GEMINI_MODEL in backend.gs line 15
