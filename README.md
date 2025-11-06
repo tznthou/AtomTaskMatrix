@@ -140,8 +140,10 @@ cp config.example.js config.js
 # 編輯 config.js 填入你的 API 金鑰
 
 # 3️⃣ 建立 Google Sheets
-# 複製範本試算表: [連結將在 SPEC.md 提供]
-# 取得試算表 ID 並填入 config.js
+# 參考 SPEC.md 第 4 章的資料結構說明，建立包含以下分頁的試算表：
+# - Tasks 分頁（8 欄：id, title, status, parent_task_id, parent_task_title, created_at, updated_at, completed_at）
+# - Analytics 分頁（7 欄：week_start, week_end, total_created, total_completed, completion_rate, avg_lifetime_days, updated_at）
+# 取得試算表 ID（URL 中的長字串）並設定到 gas/backend.gs 的 CONFIG.SPREADSHEET_ID
 
 # 4️⃣ 啟動開發伺服器
 # 使用 VS Code Live Server 或任何靜態伺服器
