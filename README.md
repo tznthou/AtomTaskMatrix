@@ -275,7 +275,6 @@ window.CONFIG = {
 ### 生產環境 (Current)
 
 **平台**: Zeabur
-**網址**: https://task-matrix.zeabur.app/
 **前端**: 靜態檔案直接部署
 **後端**: Google Apps Script Web App
 **最後更新**: 2025-11-04
@@ -287,7 +286,6 @@ window.CONFIG = {
 - 使用 Zeabur VS Code Extension 部署
 - config.js 會自動包含在部署中（Extension 不受 .gitignore 限制）
 - 適合需要 config.js 的專案
-- 🚀 當前生產環境: https://task-matrix.zeabur.app/
 
 **Netlify / Vercel:**
 - 直接連接 GitHub Repository
